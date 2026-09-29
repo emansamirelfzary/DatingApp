@@ -1,0 +1,147 @@
+<div class="min-h-screen bg-gray-950 text-white py-10 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-white">
+          Your Matches
+        </h1>
+
+        <p class="text-gray-400 text-sm mt-1">
+          Discover and connect with members.
+        </p>
+      </div>
+
+      <div
+        class="bg-gray-900 border border-gray-800 rounded-full px-4 py-1.5 text-xs text-gray-300 font-medium"
+      >
+        Total Matches:
+        <span class="text-indigo-400 font-bold">
+          {{ members().length }}
+        </span>
+      </div>
+    </div>
+    <!-- Members Grid -->
+    @if (members().length > 0) {
+
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+      >
+
+        @for (member of members(); track member.id) {
+
+          <div
+            class="group bg-gray-900/60 hover:bg-gray-900 border border-gray-800/80 hover:border-indigo-500/50 rounded-2xl p-4 transition-all duration-300 shadow-lg flex flex-col justify-between"
+          >
+
+            <div>
+
+              <!-- Avatar Container -->
+              <div
+                class="relative w-full aspect-[4/4] sm:aspect-[5/6] rounded-xl bg-gray-900 overflow-hidden mb-4"
+              >
+
+                @if (member.photoUrl) {
+
+                  <img
+                    [src]="member.photoUrl"
+                    [alt]="member.displayName"
+                    loading="lazy"
+                    decoding="async"
+                    class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-300"
+                  />
+
+                } @else {
+
+                  <div
+                    class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-950 to-purple-950"
+                  >
+                    <div
+                      class="w-16 h-16 rounded-full bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-xl font-bold text-indigo-300 uppercase"
+                    >
+                      {{ member.displayName ? member.displayName.charAt(0) : 'U' }}
+                    </div>
+                  </div>
+
+                }
+
+                <!-- Status Indicator -->
+                <span class="absolute top-3 right-3 flex h-3 w-3 z-10">
+                  <span
+                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
+                  ></span>
+
+                  <span
+                    class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"
+                  ></span>
+                </span>
+
+              </div>
+
+              <!-- Profile Details -->
+              <div class="space-y-1 mb-4">
+
+                <h3
+                  class="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors"
+                >
+                  {{ member.displayName || 'No Name' }}
+                </h3>
+
+                <p class="text-xs text-gray-400 truncate">
+                  {{ member.email || 'No Email' }}
+                </p>
+
+              </div>
+
+            </div>
+
+            <!-- Profile Action Link -->
+            <a
+              [routerLink]="['/matches', member.id]"
+              class="w-full text-center py-2.5 px-4 bg-gray-800 hover:bg-indigo-600 text-gray-200 hover:text-white font-medium text-sm rounded-xl border border-gray-700/60 hover:border-transparent transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
+            >
+
+              <span>View Profile</span>
+
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                />
+              </svg>
+
+            </a>
+
+          </div>
+
+        }
+
+      </div>
+
+    } @else {
+
+      <!-- Empty State -->
+      <div
+        class="text-center py-16 bg-gray-900/40 border border-gray-800 rounded-3xl p-8"
+      >
+        <h3 class="text-lg font-bold text-white mb-1">
+          No matches found
+        </h3>
+
+        <p class="text-sm text-gray-400">
+          There are currently no members available.
+        </p>
+      </div>
+
+    }
+
+  </div>
+</div>
