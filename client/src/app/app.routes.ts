@@ -29,6 +29,7 @@ export const routes: Routes = [
     path: 'auth/register',
     loadComponent: () => import('./features/auth/register/register').then(m => m.Register)
   },
+  {path: 'not-found', loadComponent: () => import('./shared/components/errors/not-found/not-found').then(m => m.NotFound)},
 
-  { path: '**', redirectTo: 'home' }
+  { path: '**', loadComponent: () => import('./shared/components/errors/not-found/not-found').then(m => m.NotFound) }
 ];
