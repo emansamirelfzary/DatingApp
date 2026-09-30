@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { ApiError } from '../../../types/error';
 
 
 @Component({
@@ -9,7 +10,7 @@ import { Router, RouterLink } from '@angular/router';
   styleUrl: './server-error.css',
 })
 export class ServerError {
-  protected 
+  protected error =signal<ApiError | null>(null)
   private router=inject(Router)
 
   constructor() {
