@@ -15,6 +15,7 @@ public required string Gender { get; set; }
 public string? Description { get; set; }
 public required string City { get; set; }
 public required string Country { get; set; }
+public int Age => DateTime.Today.Year - DateOfBirth.Year - (DateTime.Today.DayOfYear < DateOfBirth.DayOfYear ? 1 : 0);
 
 // Navigation property to the Photo entity
 public  List<Photo> Photos { get; set; } = [];

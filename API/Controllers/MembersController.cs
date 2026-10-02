@@ -16,7 +16,7 @@ public class MembersController(AppDbContext context) : BaseApiController
         return members;
     }
 
-[Authorize]
+
     [HttpGet("{id}")]
     public async Task<ActionResult<AppUser>> GetMember(string id)
     {

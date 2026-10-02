@@ -31,6 +31,10 @@ public class Seed
                 Email = member.Email,
                 PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes("Pa$$w0rd")),
                 PasswordSalt = hmac.Key,
+                PhotoUrl = member.ImageUrl, 
+                City = member.City,
+                Bio = member.Description,
+                Age = DateTime.Today.Year - member.DateOfBirth.Year - (DateTime.Today.DayOfYear < member.DateOfBirth.DayOfYear ? 1 : 0),
                 Member = new Member
                 {
                     Id = member.Id,

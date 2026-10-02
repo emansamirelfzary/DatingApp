@@ -19,6 +19,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddCors();
 builder.Services.AddScoped<ITokenService, TokenService>();
+services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -72,6 +73,7 @@ catch (Exception ex)
 {
     var logger = services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, "An error occurred during migration or seeding.");
+    throw;
 }
 
 
