@@ -13,4 +13,7 @@ public class AppUser
     public string? Bio { get; set; }
     public required byte [] PasswordHash { get; set; }
     public required byte [] PasswordSalt { get; set; }
+
+    // Navigation property to the Member entity
+    public Member Member { get; set; } = null!;
 }
