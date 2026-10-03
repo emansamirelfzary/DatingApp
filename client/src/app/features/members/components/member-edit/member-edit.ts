@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Member, UpdateMember } from '../../interfaces/member.interface';
 
@@ -8,6 +8,8 @@ import { Member, UpdateMember } from '../../interfaces/member.interface';
   templateUrl: './member-edit.html',
 })
 export class MemberEdit implements OnChanges {
+  @ViewChild('editForm') private editForm?: NgForm;
+
   @Input({ required: true }) member!: Member;
   @Input() isSaving = false;
   @Input() saveError: string | null = null;
@@ -17,6 +19,10 @@ export class MemberEdit implements OnChanges {
 
   protected formValue: UpdateMember = this.emptyForm();
   protected readonly today = new Date().toISOString().slice(0, 10);
+
+  hasUnsavedChanges(): boolean {
+    return this.editForm?.dirty ?? false;
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['member'] && this.member) {

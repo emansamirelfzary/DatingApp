@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Home } from './features/home/home';
 import { authGuardGuard } from './core/guards/auth-guard-guard';
+import { memberEditGuard } from './features/members/guards/member-edit-guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -14,7 +15,7 @@ export const routes: Routes = [
   },
   {
     path: 'matches/:id',
-    loadComponent: () => import('./features/members/components/member-profile/member-profile').then(m => m.MemberProfile),canActivate: [authGuardGuard]
+    loadComponent: () => import('./features/members/components/member-profile/member-profile').then(m => m.MemberProfile),canActivate: [authGuardGuard], canDeactivate: [memberEditGuard]
   },
   {path: 'matches/:id/photos', loadComponent: () => import('./features/members/components/member-photos/member-photos').then(m => m.MemberPhotos),canActivate: [authGuardGuard]
   },

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, HostListener, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MembersService } from '../../services/members';
@@ -16,6 +16,8 @@ import { of, switchMap } from 'rxjs';
   styleUrl: './member-profile.css',
 })
 export class MemberProfile implements OnInit {
+  @ViewChild(MemberEdit) private memberEdit?: MemberEdit;
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
@@ -79,9 +81,26 @@ export class MemberProfile implements OnInit {
   }
 
   cancelEditing(): void {
+    if (!this.canDeactivate()) {
+      return;
+    }
+
     this.saveError.set(null);
     this.isEditing.set(false);
     this.clearEditQueryParam();
+  }
+
+  canDeactivate(): boolean {
+    return !this.memberEdit?.hasUnsavedChanges()
+      || window.confirm('You have unsaved changes. Leave without saving?');
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  protectUnsavedChanges(event: BeforeUnloadEvent): void {
+    if (this.memberEdit?.hasUnsavedChanges()) {
+      event.preventDefault();
+      event.returnValue = '';
+    }
   }
 
   saveProfile(profile: UpdateMember): void {
