@@ -25,6 +25,7 @@
           <h1 class="text-2xl font-bold text-white">{{ user.displayName }}</h1>
           <p class="text-xs text-indigo-300">{{ user.city }}@if (user.country) {, {{ user.country }}}</p>
         </div>
+
       </div>
 
       <!-- Right: Profile Info Column -->
@@ -161,4 +162,37 @@
     }
 
   </div>
+
+  @if (showUnsavedChangesDialog()) {
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4" role="presentation">
+      <section
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="unsaved-changes-title"
+        aria-describedby="unsaved-changes-description"
+        class="w-full max-w-md rounded-2xl border border-gray-700 bg-gray-900 p-6 shadow-2xl"
+      >
+        <h2 id="unsaved-changes-title" class="text-lg font-semibold text-white">Discard unsaved changes?</h2>
+        <p id="unsaved-changes-description" class="mt-2 text-sm text-gray-300">
+          Your profile edits have not been saved. If you leave now, those changes will be lost.
+        </p>
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            (click)="resolveUnsavedChangesDialog(false)"
+            class="rounded-lg border border-gray-600 px-4 py-2 text-sm font-medium text-gray-200 transition-colors hover:bg-gray-800"
+          >
+            Keep editing
+          </button>
+          <button
+            type="button"
+            (click)="resolveUnsavedChangesDialog(true)"
+            class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500"
+          >
+            Discard changes
+          </button>
+        </div>
+      </section>
+    </div>
+  }
 </div>

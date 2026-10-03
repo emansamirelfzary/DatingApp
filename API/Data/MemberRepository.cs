@@ -36,7 +36,7 @@ public class MemberRepository(AppDbContext context) : IMemberRepository
         return await context.SaveChangesAsync() > 0;
     }   
 
-    public void Update(Member member)
+    public void UpdateMember(Member member)
     {
         context.Entry(member).State = EntityState.Modified;
     }

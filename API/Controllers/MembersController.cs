@@ -55,52 +55,24 @@ public class MembersController(IMemberRepository memberRepository) : BaseApiCont
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<ActionResult<MemberDTO>> UpdateMember(string id, UpdateMemberDTO updateMemberDTO)
+    public async Task<ActionResult<MemberDTO>> UpdateMember( UpdateMemberDTO updateMemberDTO)
     {
-        if (User.FindFirstValue(ClaimTypes.NameIdentifier) != id)
-        {
-            return Forbid();
-        }
+        var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (memberId == null) return BadRequest("User ID not found in token.");
+        var member = await memberRepository.GetMemberByIdAsync(memberId);
+        if (member == null) return NotFound();
+        member.DisplayName = updateMemberDTO.DisplayName?? member.DisplayName;
+        member.City = updateMemberDTO.City ?? member.City;
+        member.Description = updateMemberDTO.Description ?? member.Description;
+        member.Country = updateMemberDTO.Country ?? member.Country;
+        member.DateOfBirth = updateMemberDTO.DateOfBirth ?? member.DateOfBirth;
+        member.Gender = updateMemberDTO.Gender ?? member.Gender;
+        
 
-        var member = await memberRepository.GetMemberByIdAsync(id);
-        if (member is null)
-        {
-            return NotFound();
-        }
+        memberRepository.UpdateMember(member);
+        if (await memberRepository.SaveAllAsync()) return NoContent();
+        return BadRequest("Failed to update member."); 
 
-        if (updateMemberDTO.DateOfBirth is not DateOnly dateOfBirth)
-        {
-            return BadRequest("Date of birth is required.");
-        }
-
-        if (dateOfBirth > DateOnly.FromDateTime(DateTime.UtcNow))
-        {
-            return BadRequest("Date of birth cannot be in the future.");
-        }
-
-        member.DisplayName = updateMemberDTO.DisplayName.Trim();
-        member.User.DisplayName = member.DisplayName;
-        member.DateOfBirth = dateOfBirth;
-        member.Gender = updateMemberDTO.Gender.Trim();
-        member.City = updateMemberDTO.City.Trim();
-        member.Country = updateMemberDTO.Country.Trim();
-        member.Description = updateMemberDTO.Bio?.Trim();
-
-        await memberRepository.SaveAllAsync();
-
-        return Ok(new MemberDTO(
-            member.Id,
-            member.DisplayName,
-            member.User.Email,
-            member.DateOfBirth,
-            member.ImageUrl,
-            member.Age,
-            member.City,
-            member.Description,
-            member.Created,
-            member.LastActive,
-            member.Gender,
-            member.Country));
     }
 
     [Authorize]

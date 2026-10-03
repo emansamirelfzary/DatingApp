@@ -29,6 +29,9 @@ export class MemberProfile implements OnInit {
   isEditing = signal(false);
   isSaving = signal(false);
   saveError = signal<string | null>(null);
+  showUnsavedChangesDialog = signal(false);
+  private pendingUnsavedChangesConfirmation: Promise<boolean> | null = null;
+  private resolveUnsavedChangesConfirmation: ((discard: boolean) => void) | null = null;
 
   ngOnInit(): void {
     this.route.paramMap.pipe(
@@ -80,19 +83,46 @@ export class MemberProfile implements OnInit {
     this.isEditing.set(true);
   }
 
-  cancelEditing(): void {
-    if (!this.canDeactivate()) {
+  async cancelEditing(): Promise<void> {
+    if (!(await this.confirmDiscardingChanges())) {
       return;
     }
 
+    this.closeEditor();
+  }
+
+  canDeactivate(): boolean | Promise<boolean> {
+    return this.memberEdit?.hasUnsavedChanges()
+      ? this.confirmDiscardingChanges()
+      : true;
+  }
+
+  resolveUnsavedChangesDialog(discard: boolean): void {
+    this.resolveUnsavedChangesConfirmation?.(discard);
+  }
+
+  private confirmDiscardingChanges(): Promise<boolean> {
+    if (this.pendingUnsavedChangesConfirmation) {
+      return this.pendingUnsavedChangesConfirmation;
+    }
+
+    this.showUnsavedChangesDialog.set(true);
+    this.pendingUnsavedChangesConfirmation = new Promise((resolve) => {
+      this.resolveUnsavedChangesConfirmation = (discard) => {
+        this.showUnsavedChangesDialog.set(false);
+        this.pendingUnsavedChangesConfirmation = null;
+        this.resolveUnsavedChangesConfirmation = null;
+        resolve(discard);
+      };
+    });
+
+    return this.pendingUnsavedChangesConfirmation;
+  }
+
+  private closeEditor(): void {
     this.saveError.set(null);
     this.isEditing.set(false);
     this.clearEditQueryParam();
-  }
-
-  canDeactivate(): boolean {
-    return !this.memberEdit?.hasUnsavedChanges()
-      || window.confirm('You have unsaved changes. Leave without saving?');
   }
 
   @HostListener('window:beforeunload', ['$event'])
