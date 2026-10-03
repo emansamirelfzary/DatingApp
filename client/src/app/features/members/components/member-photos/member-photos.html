@@ -1,22 +1,12 @@
 <section class="mx-auto max-w-6xl px-4 py-8 text-white">
  <a
-   [routerLink]="['/matches', memberId]"
+   [routerLink]="['/matches', memberId()]"
    class="mb-6 inline-flex text-indigo-400 hover:text-indigo-300"
  >Back to profile</a>
 
  <h1 class="mb-6 text-2xl font-bold">Photos</h1>
 
- @if (photos().length) {
-   <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-     @for (photo of photos(); track photo.id) {
-       <img
-         [src]="photo.url"
-         [alt]="photo.isMain ? 'Main profile photo' : 'Member photo'"
-         class="aspect-square w-full rounded-xl object-cover"
-       />
-     }
-   </div>
- } @else {
-   <p class="text-gray-400">This member has not added any photos yet.</p>
+ @if (memberId()) {
+   <app-member-photo-list [memberId]="memberId()" />
  }
 </section>

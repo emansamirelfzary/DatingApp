@@ -3,10 +3,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MembersService } from '../../services/members';
 import { Member } from '../../interfaces/member.interface';
 import { DatePipe } from '@angular/common';
+import { MemberPhotoList } from '../member-photo-list/member-photo-list';
 
 @Component({
   selector: 'app-member-profile',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, MemberPhotoList],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
 })
@@ -17,16 +18,19 @@ export class MemberProfile implements OnInit {
   member = signal<Member | null>(null);
 
   ngOnInit(): void {
-   
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.membersService.getMember(id).subscribe({
-      next: (data) => {
-        console.log('Member loaded:', data);
-        this.member.set(data);
+    if (!id) {
+      return;
+    }
 
-          }      });
-    } 
-    console.log(this.member());
+    this.membersService.getMember(id).subscribe({
+      next: (data) => {
+        this.member.set(data);
+      },
+      error: (err) => {
+        console.error('Error fetching member profile:', err);
+      },
+    });
+
   }
 }

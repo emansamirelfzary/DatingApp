@@ -12,7 +12,7 @@
 
     @if (member(); as user) {
     <div
-      class="bg-gray-900/80 border border-gray-800 rounded-2xl h-auto md:h-[680px] items-stretch shadow-2xl grid grid-cols-1 md:grid-cols-12 overflow-hidden">
+      class="bg-gray-900/80 border border-gray-800 rounded-2xl h-auto  items-stretch shadow-2xl grid grid-cols-1 md:grid-cols-12 overflow-hidden">
 
       <!-- Left: Image Column -->
       <div class="md:col-span-5 relative w-full h-auto md:h-full aspect-[4/3] sm:aspect-[4/5] md:aspect-auto">
@@ -88,6 +88,18 @@
             <p class="text-gray-300 text-sm leading-relaxed bg-gray-950/40 p-4 rounded-xl border border-gray-800/50">
               {{ user.bio }}
             </p>
+          </div>
+
+          <!-- Photos Section -->
+          <div class="space-y-3 pt-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Photos</h3>
+              <a [routerLink]="['/matches', user.id, 'photos']" class="text-xs font-medium text-indigo-400 hover:text-indigo-300">
+                View all
+              </a>
+            </div>
+
+            <app-member-photo-list [memberId]="user.id" [previewLimit]="6" />
           </div>
 
           <!-- Account Metadata Footer -->

@@ -1,0 +1,19 @@
+@if (isLoading()) {
+  <p class="text-sm text-gray-400">Loading photos...</p>
+} @else if (photos().length) {
+  <div
+    [class]="previewLimit === null
+      ? 'grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4'
+      : 'grid grid-cols-3 gap-3'"
+  >
+    @for (photo of photos().slice(0, previewLimit ?? photos().length); track photo.id) {
+      <img
+        [src]="photo.url"
+        [alt]="photo.isMain ? 'Main profile photo' : 'Member photo'"
+        class="aspect-square w-full rounded-xl object-cover border border-gray-800 bg-gray-950"
+      />
+    }
+  </div>
+} @else {
+  <p class="text-sm text-gray-400">This member has not added any photos yet.</p>
+}
