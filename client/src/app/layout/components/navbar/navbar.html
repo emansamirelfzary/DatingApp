@@ -89,6 +89,41 @@
 
         </div>
 
+        <!-- Theme Picker -->
+        <details #themeDropdown class="relative">
+          <summary
+            class="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-gray-300 transition-colors hover:bg-gray-700 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 [&::-webkit-details-marker]:hidden"
+            aria-label="Choose a theme"
+            title="Choose a theme"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3a9 9 0 1 0 0 18h1.2a2.3 2.3 0 0 0 1.7-3.8 1.8 1.8 0 0 1 1.4-3h.8A4.9 4.9 0 0 0 22 9.3C22 5.8 17.5 3 12 3Z" />
+              <path stroke-linecap="round" stroke-width="2" d="M7.5 10h.01M10 6.5h.01M15 7h.01M17.5 10h.01" />
+            </svg>
+          </summary>
+
+          <div class="absolute right-0 top-full z-50 mt-2 max-h-80 w-48 overflow-y-auto rounded-xl border border-gray-700 bg-gray-900 p-2 shadow-xl">
+            <p class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Choose theme</p>
+            @for (theme of themes; track theme) {
+              <button
+                type="button"
+                (click)="handleSelectTheme(theme, themeDropdown)"
+                [attr.aria-pressed]="selectedTheme() === theme"
+                class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm capitalize transition-colors hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400"
+                [class.text-indigo-400]="selectedTheme() === theme"
+                [class.text-gray-300]="selectedTheme() !== theme"
+              >
+                {{ theme }}
+                @if (selectedTheme() === theme) {
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 12 4 4L19 6" />
+                  </svg>
+                }
+              </button>
+            }
+          </div>
+        </details>
+
         <!-- Mobile Hamburger Icon -->
         <label
           for="nav-toggle"

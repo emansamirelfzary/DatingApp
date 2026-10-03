@@ -27,10 +27,11 @@ ngOnInit() {
 
   }
 
-handleSelectTheme(theme: string) {
+handleSelectTheme(theme: string, dropdown: HTMLDetailsElement) {
     this.selectedTheme.set(theme);
     localStorage.setItem('theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
+    dropdown.open = false;
   }
 
 logout() {
