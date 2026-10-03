@@ -13,10 +13,10 @@
   age: number;
 }
 
-export interface photo {
+export interface Photo {
   id: number;
   url: string;
   isMain: boolean;
   memberId: string;
-  publicId: string;
+  publicId: string | null;
 }

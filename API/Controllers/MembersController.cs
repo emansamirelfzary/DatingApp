@@ -51,4 +51,23 @@ public class MembersController(IMemberRepository memberRepository) : BaseApiCont
             member.Gender,
             member.Country));
     }
+
+    [Authorize]
+    [HttpGet("{id}/photos")]
+    public async Task<ActionResult<IReadOnlyList<PhotoDTO>>> GetMemberPhotos(string id)
+    {
+        var member = await memberRepository.GetMemberByIdAsync(id);
+        if (member is null)
+        {
+            return NotFound();
+        }
+
+        var photos = await memberRepository.GetPhotosByMemberIdAsync(id);
+        return Ok(photos.Select(photo => new PhotoDTO(
+            photo.Id,
+            photo.Url,
+            photo.IsMain,
+            photo.MemberId,
+            photo.PublicId)).ToList());
+    }
 }

@@ -2,7 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Member } from '../interfaces/member.interface';
+import { Member, Photo } from '../interfaces/member.interface';
 import { environment } from '../../../../environments/environment.development';
 
 
@@ -24,8 +24,8 @@ export class MembersService {
     return this.http.get<Member>(this.baseUrl + 'members/' + id);
   }
 
-  getMemberPhotos(id: string): Observable<string[]> {
-    return this.http.get<string[]>(this.baseUrl + 'members/' + id + '/photos');
+  getMemberPhotos(id: string): Observable<Photo[]> {
+    return this.http.get<Photo[]>(this.baseUrl + 'members/' + id + '/photos');
   }
 
   
