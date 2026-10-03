@@ -20,5 +20,5 @@ public sealed class UpdateMemberDTO
     public string Country { get; init; } = string.Empty;
 
     [StringLength(500)]
-  public string? Description { get; set; }
+    public string? Bio { get; init; }
 }

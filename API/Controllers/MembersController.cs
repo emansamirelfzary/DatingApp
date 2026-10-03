@@ -55,24 +55,37 @@ public class MembersController(IMemberRepository memberRepository) : BaseApiCont
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<ActionResult<MemberDTO>> UpdateMember( UpdateMemberDTO updateMemberDTO)
+    public async Task<ActionResult<MemberDTO>> UpdateMember(string id, UpdateMemberDTO updateMemberDTO)
     {
         var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (memberId == null) return BadRequest("User ID not found in token.");
+        if (memberId != id) return Forbid();
+
         var member = await memberRepository.GetMemberByIdAsync(memberId);
         if (member == null) return NotFound();
-        member.DisplayName = updateMemberDTO.DisplayName?? member.DisplayName;
-        member.City = updateMemberDTO.City ?? member.City;
-        member.Description = updateMemberDTO.Description ?? member.Description;
-        member.Country = updateMemberDTO.Country ?? member.Country;
-        member.DateOfBirth = updateMemberDTO.DateOfBirth ?? member.DateOfBirth;
-        member.Gender = updateMemberDTO.Gender ?? member.Gender;
-        
+        member.DisplayName = updateMemberDTO.DisplayName;
+        member.City = updateMemberDTO.City;
+        member.Description = updateMemberDTO.Bio;
+        member.Country = updateMemberDTO.Country;
+        member.DateOfBirth = updateMemberDTO.DateOfBirth!.Value;
+        member.Gender = updateMemberDTO.Gender;
 
         memberRepository.UpdateMember(member);
-        if (await memberRepository.SaveAllAsync()) return NoContent();
-        return BadRequest("Failed to update member."); 
+        await memberRepository.SaveAllAsync();
 
+        return Ok(new MemberDTO(
+            member.Id,
+            member.DisplayName,
+            member.User.Email,
+            member.DateOfBirth,
+            member.ImageUrl,
+            member.Age,
+            member.City,
+            member.Description,
+            member.Created,
+            member.LastActive,
+            member.Gender,
+            member.Country));
     }
 
     [Authorize]
