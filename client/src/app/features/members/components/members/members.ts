@@ -1,8 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MembersService } from '../../services/members';
 import { Member } from '../../interfaces/member.interface';
-import { AsyncPipe } from '@angular/common';
+import { AccountService } from '../../../../core/services/account-service';
 
 @Component({
   selector: 'app-members',
@@ -13,8 +13,13 @@ import { AsyncPipe } from '@angular/common';
 })
 export class Members implements OnInit {
   private memberService = inject(MembersService);
+  private accountService = inject(AccountService);
 
-  protected members = signal<Member[]>([]);
+  private allMembers = signal<Member[]>([]);
+  protected members = computed(() => {
+    const currentUserId = this.accountService.currentUser()?.id;
+    return this.allMembers().filter((member) => member.id !== currentUserId);
+  });
 
   ngOnInit(): void {
     this.loadMembers();
@@ -23,7 +28,7 @@ export class Members implements OnInit {
   private loadMembers(): void {
     this.memberService.getMembers().subscribe({
       next: (members) => {
-        this.members.set(members);
+        this.allMembers.set(members);
       },
       error: (err) => {
         console.error('Error fetching members:', err);
