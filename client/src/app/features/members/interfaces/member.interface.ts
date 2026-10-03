@@ -1,9 +1,22 @@
-export interface Member {
-  id: number | string;
+  export interface Member {
+  id: string;
+  email: string;
+  gender: string;
+  dateOfBirth: string; // Keep as string (YYYY-MM-DD) for API serialization
   displayName: string;
-  email?: string;
-  photoUrl?: string;
-  age?: number;
-  city?: string;
-  bio?: string; 
+  created: string;
+  lastActive: string;
+  bio: string;
+  city: string;
+  country: string;
+  photoUrl: string;
+  age: number;
+}
+
+export interface photo {
+  id: number;
+  url: string;
+  isMain: boolean;
+  memberId: string;
+  publicId: string;
 }

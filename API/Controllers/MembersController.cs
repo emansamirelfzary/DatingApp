@@ -1,29 +1,50 @@
-using API.Data;
-using API.Entities;
+using API.DTOs;
+using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
-public class MembersController(AppDbContext context) : BaseApiController
+public class MembersController(IMemberRepository memberRepository) : BaseApiController
 {
-   [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<AppUser>>> GetMembers()
+    [HttpGet]
+    public async Task<ActionResult<IReadOnlyList<SeedUserDTO>>> GetMembers()
     {
-        var members = await context.Users.ToListAsync();
+        var members = await memberRepository.GetMembersAsync();
 
-        return members;
+        var memberDtos = members.Select(user => new SeedUserDTO
+        {
+            Id = user.Id,
+            DisplayName = user.DisplayName,
+            Email = user.Email,
+            PhotoUrl = user.PhotoUrl,
+            Age = user.Age,
+            City = user.City,
+            Bio = user.Bio
+        }).ToList();
+
+        return Ok(memberDtos);
     }
 
-
+    [Authorize]
     [HttpGet("{id}")]
-    public async Task<ActionResult<AppUser>> GetMember(string id)
+    public async Task<ActionResult<SeedUserDTO>> GetMember(string id)
     {
-        var member = await context.Users.FindAsync(id);
+        var user = await memberRepository.GetMemberByIdAsync(id);
 
-        if (member == null) return NotFound();
+        if (user == null) return NotFound();
 
-        return member;
+        var memberDto = new SeedUserDTO
+        {
+            Id = user.Id,
+            DisplayName = user.DisplayName,
+            Email = user.Email,
+            PhotoUrl = user.PhotoUrl,
+            Age = user.Age,
+            City = user.City,
+            Bio = user.Bio
+        };
+
+        return Ok(memberDto);
     }
 }

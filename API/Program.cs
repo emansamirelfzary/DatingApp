@@ -19,7 +19,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddCors();
 builder.Services.AddScoped<ITokenService, TokenService>();
-services.AddScoped<IMemberRepository, MemberRepository>();
+builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

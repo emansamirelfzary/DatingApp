@@ -4,8 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Data;
 
-public class MemberRepository: IMemberRepository
+public class MemberRepository(AppDbContext context) : IMemberRepository
 {
+    public void AddMember(Member member)
+    {
+        context.Members.Add(member);
+    }
+
     public async Task<Member?> GetMemberByIdAsync(string id)
     {
         return await context.Members.FindAsync(id);
@@ -18,7 +23,9 @@ public class MemberRepository: IMemberRepository
 
     public async Task<IReadOnlyList<Photo>> GetPhotosByMemberIdAsync(string memberId)
     {
-        return await context.Photos.Where(x => x.MemberId == memberId).Selectmany(x => x.Photos).ToListAsync();
+        return await context.Photos
+            .Where(photo => photo.MemberId == memberId)
+            .ToListAsync();
     }
     public async Task<bool> SaveAllAsync()
     {

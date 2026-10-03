@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MembersService } from '../../services/members';
 import { Member } from '../../interfaces/member.interface';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-members',
