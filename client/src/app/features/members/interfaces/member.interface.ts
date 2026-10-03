@@ -6,10 +6,10 @@
   displayName: string;
   created: string;
   lastActive: string;
-  bio: string;
+  bio: string | null;
   city: string;
   country: string;
-  photoUrl: string;
+  photoUrl: string | null;
   age: number;
 }
 
@@ -19,4 +19,13 @@ export interface Photo {
   isMain: boolean;
   memberId: string;
   publicId: string | null;
+}
+
+export interface UpdateMember {
+  displayName: string;
+  dateOfBirth: string;
+  gender: string;
+  city: string;
+  country: string;
+  bio: string;
 }
