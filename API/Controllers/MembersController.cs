@@ -8,43 +8,47 @@ namespace API.Controllers;
 public class MembersController(IMemberRepository memberRepository) : BaseApiController
 {
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<SeedUserDTO>>> GetMembers()
+    public async Task<ActionResult<IReadOnlyList<MemberDTO>>> GetMembers()
     {
         var members = await memberRepository.GetMembersAsync();
 
-        var memberDtos = members.Select(user => new SeedUserDTO
-        {
-            Id = user.Id,
-            DisplayName = user.DisplayName,
-            Email = user.Email,
-            PhotoUrl = user.PhotoUrl,
-            Age = user.Age,
-            City = user.City,
-            Bio = user.Bio
-        }).ToList();
+        var memberDtos = members.Select(member => new MemberDTO(
+            member.Id,
+            member.DisplayName,
+            member.User.Email,
+            member.DateOfBirth,
+            member.ImageUrl,
+            member.Age,
+            member.City,
+            member.Description,
+            member.Created,
+            member.LastActive,
+            member.Gender,
+            member.Country)).ToList();
 
         return Ok(memberDtos);
     }
 
     [Authorize]
     [HttpGet("{id}")]
-    public async Task<ActionResult<SeedUserDTO>> GetMember(string id)
+    public async Task<ActionResult<MemberDTO>> GetMember(string id)
     {
-        var user = await memberRepository.GetMemberByIdAsync(id);
+        var member = await memberRepository.GetMemberByIdAsync(id);
 
-        if (user == null) return NotFound();
+        if (member == null) return NotFound();
 
-        var memberDto = new SeedUserDTO
-        {
-            Id = user.Id,
-            DisplayName = user.DisplayName,
-            Email = user.Email,
-            PhotoUrl = user.PhotoUrl,
-            Age = user.Age,
-            City = user.City,
-            Bio = user.Bio
-        };
-
-        return Ok(memberDto);
+        return Ok(new MemberDTO(
+            member.Id,
+            member.DisplayName,
+            member.User.Email,
+            member.DateOfBirth,
+            member.ImageUrl,
+            member.Age,
+            member.City,
+            member.Description,
+            member.Created,
+            member.LastActive,
+            member.Gender,
+            member.Country));
     }
 }

@@ -16,6 +16,8 @@ export const routes: Routes = [
     path: 'matches/:id',
     loadComponent: () => import('./features/members/components/member-profile/member-profile').then(m => m.MemberProfile),canActivate: [authGuardGuard]
   },
+  {path: 'matches/:id/photos', loadComponent: () => import('./features/members/components/member-photos/member-photos').then(m => m.MemberPhotos),canActivate: [authGuardGuard]
+  },
   {
     path: 'messages',
     loadComponent: () => import('./features/messages/components/messages/messages').then(m => m.Messages),canActivate: [authGuardGuard]

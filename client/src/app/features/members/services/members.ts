@@ -24,5 +24,9 @@ export class MembersService {
     return this.http.get<Member>(this.baseUrl + 'members/' + id);
   }
 
+  getMemberPhotos(id: string): Observable<string[]> {
+    return this.http.get<string[]>(this.baseUrl + 'members/' + id + '/photos');
+  }
+
   
 }

@@ -2,10 +2,11 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MembersService } from '../../services/members';
 import { Member } from '../../interfaces/member.interface';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-member-profile',
-  imports: [RouterLink],
+  imports: [RouterLink, DatePipe],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
 })
