@@ -1,5 +1,5 @@
 export const Themes = [
-  "light",
+"light",
   "dark",
   "cupcake",
   "bumblebee",
@@ -19,5 +19,19 @@ export const Themes = [
   "wireframe",
   "black",
   "luxury",
-  "dracula"
+  "dracula",
+  "cmyk",
+  "autumn",
+  "business",
+  "acid",
+  "lemonade",
+  "night",
+  "coffee",
+  "winter",
+  "dim",
+  "nord",
+  "sunset",
+  "caramellatte",
+  "abyss",
+  "silk",
 ];
