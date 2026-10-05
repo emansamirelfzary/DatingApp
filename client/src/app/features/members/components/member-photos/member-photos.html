@@ -7,6 +7,6 @@
  <h1 class="mb-6 text-2xl font-bold">Photos</h1>
 
  @if (memberId()) {
-   <app-member-photo-list [memberId]="memberId()" />
+   <app-member-photo-list [memberId]="memberId()" [canUpload]="memberId() === currentUser()?.id" />
  }
 </section>

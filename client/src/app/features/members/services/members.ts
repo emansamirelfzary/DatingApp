@@ -28,6 +28,13 @@ export class MembersService {
     return this.http.get<Photo[]>(this.baseUrl + 'members/' + id + '/photos');
   }
 
+  uploadPhoto(file: File): Observable<Photo> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http.post<Photo>(this.baseUrl + 'members/add-photo', formData);
+  }
+
   updateMember(id: string, member: UpdateMember): Observable<Member> {
     return this.http.put<Member>(this.baseUrl + 'members/' + id, member);
   }

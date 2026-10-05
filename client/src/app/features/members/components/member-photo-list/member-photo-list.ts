@@ -9,9 +9,12 @@ import { Photo } from '../../interfaces/member.interface';
 export class MemberPhotoList implements OnChanges {
   @Input({ required: true }) memberId = '';
   @Input() previewLimit: number | null = null;
+  @Input() canUpload = false;
 
   protected photos = signal<Photo[]>([]);
   protected isLoading = signal(false);
+  protected isUploading = signal(false);
+  protected uploadError = signal<string | null>(null);
 
   protected membersService = inject(MembersService);
 
@@ -20,6 +23,10 @@ export class MemberPhotoList implements OnChanges {
       return;
     }
 
+    this.loadPhotos();
+  }
+
+  protected loadPhotos(): void {
     if (!this.memberId) {
       this.photos.set([]);
       this.isLoading.set(false);
@@ -35,6 +42,31 @@ export class MemberPhotoList implements OnChanges {
       error: (err) => {
         this.isLoading.set(false);
         console.error('Error fetching member photos:', err);
+      },
+    });
+  }
+
+  protected onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    this.isUploading.set(true);
+    this.uploadError.set(null);
+
+    this.membersService.uploadPhoto(file).subscribe({
+      next: (photo) => {
+        this.photos.update((current) => [photo, ...current]);
+        this.isUploading.set(false);
+        input.value = '';
+      },
+      error: (err) => {
+        this.isUploading.set(false);
+        this.uploadError.set(err?.error?.message ?? 'Unable to upload photo.');
+        input.value = '';
       },
     });
   }

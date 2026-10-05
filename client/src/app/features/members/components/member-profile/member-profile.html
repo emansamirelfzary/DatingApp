@@ -109,7 +109,7 @@
               </a>
             </div>
 
-            <app-member-photo-list [memberId]="user.id" [previewLimit]="6" />
+            <app-member-photo-list [memberId]="user.id" [previewLimit]="6" [canUpload]="user.id === currentUser()?.id" />
           </div>
 
           <!-- Account Metadata Footer -->

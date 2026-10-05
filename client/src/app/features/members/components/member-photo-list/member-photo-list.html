@@ -17,3 +17,23 @@
 } @else {
   <p class="text-sm text-gray-400">This member has not added any photos yet.</p>
 }
+
+@if (canUpload) {
+  <div class="mt-4">
+    <label for="member-photo-upload" class="inline-flex cursor-pointer items-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60">
+      <span>{{ isUploading() ? 'Uploading...' : 'Upload photo' }}</span>
+      <input
+        id="member-photo-upload"
+        type="file"
+        accept="image/*"
+        class="hidden"
+        [disabled]="isUploading()"
+        (change)="onFileSelected($event)"
+      />
+    </label>
+
+    @if (uploadError()) {
+      <p class="mt-2 text-sm text-red-400">{{ uploadError() }}</p>
+    }
+  </div>
+}
