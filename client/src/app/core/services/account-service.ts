@@ -14,7 +14,7 @@ export class AccountService {
   baseUrl= environment.apiUrl;
 
  login(creds: any) {
-  return this.http.post<User>(this.baseUrl + '/login', creds).pipe(
+  return this.http.post<User>(this.baseUrl + 'account/login', creds).pipe(
     tap((user: User) => {
       localStorage.setItem('user', JSON.stringify(user));
       this.currentUser.set(user);
@@ -28,7 +28,7 @@ logout() {
   }
 
   register (creds: any) {
-    return this.http.post(this.baseUrl + '/register', creds);
+    return this.http.post(this.baseUrl + 'account/register', creds);
   }
 /*
   setCurrentUser(){
