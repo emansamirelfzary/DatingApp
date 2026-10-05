@@ -13,7 +13,7 @@ export class MemberPhotoList implements OnChanges {
   protected photos = signal<Photo[]>([]);
   protected isLoading = signal(false);
 
-  private membersService = inject(MembersService);
+  protected membersService = inject(MembersService);
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['memberId']) {

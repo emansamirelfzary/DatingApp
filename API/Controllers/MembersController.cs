@@ -1,12 +1,16 @@
 using API.DTOs;
+using API.Entities;
 using API.Interfaces;
+using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
+
 namespace API.Controllers;
 
-public class MembersController(IMemberRepository memberRepository) : BaseApiController
+[Authorize]
+public class MembersController(IMemberRepository memberRepository, IPhotoService photoService) : BaseApiController
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<MemberDTO>>> GetMembers()
@@ -105,5 +109,53 @@ public class MembersController(IMemberRepository memberRepository) : BaseApiCont
             photo.IsMain,
             photo.MemberId,
             photo.PublicId)).ToList());
+    }
+
+    [Authorize]
+    [HttpPost("add-photo")]
+    public async Task<ActionResult<PhotoDTO>> AddPhoto([FromForm] IFormFile file)
+    {
+        var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (memberId == null) return BadRequest("User ID not found in token.");
+
+        var member = await memberRepository.GetMemberByIdAsync(memberId);
+        if (member == null) return NotFound();
+
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest("Please select a photo to upload.");
+        }
+
+        var result = await photoService.UploadPhotoAsync(file);
+        if (result.Error != null)
+        {
+            return BadRequest(result.Error.Message);
+        }
+
+        var photo = new Photo
+        {
+            Url = result.SecureUrl.AbsoluteUri,
+            PublicId = result.PublicId,
+            IsMain = member.Photos.Count == 0,
+            MemberId = member.Id
+        };
+        if (member.ImageUrl == null)
+        {
+            member.ImageUrl = photo.Url;
+            member.User.PhotoUrl = photo.Url;
+        }
+        member.Photos.Add(photo);
+
+        if (await memberRepository.SaveAllAsync())
+        {
+            return CreatedAtAction(nameof(GetMember), new { id = member.Id }, new PhotoDTO(
+                photo.Id,
+                photo.Url,
+                photo.IsMain,
+                photo.MemberId,
+                photo.PublicId));
+        }
+
+        return BadRequest("Problem adding photo");
     }
 }
