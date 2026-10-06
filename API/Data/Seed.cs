@@ -1,8 +1,8 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
 using API.DTOs;
 using API.Entities;
+using API.Security;
 
 namespace API.Data;
 
@@ -20,17 +20,16 @@ public class Seed
             
          return;}
 
-         using var hmac = new HMACSHA512();
-
         foreach (var member in members)
         {
+           var (passwordHash, passwordSalt) = PasswordHasher.Hash("Pa$$w0rd");
            var user = new AppUser
             {
                 Id = member.Id,
                 DisplayName = member.DisplayName,
                 Email = member.Email,
-                PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes("Pa$$w0rd")),
-                PasswordSalt = hmac.Key,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt,
                 PhotoUrl = member.ImageUrl, 
                 City = member.City,
                 Bio = member.Description,
@@ -50,11 +49,15 @@ public class Seed
                 }
             };
 
-        user.Member.Photos.Add(new Photo
+        if (!string.IsNullOrWhiteSpace(member.ImageUrl))
         {
-            Url = member.ImageUrl,
-            MemberId = member.Id,
-        }); // Set the navigation property to the AppUser entity
+            user.Member.Photos.Add(new Photo
+            {
+                Url = member.ImageUrl,
+                MemberId = member.Id,
+                IsMain = true
+            });
+        }
 
             context.Users.Add(user);
         }

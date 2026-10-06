@@ -33,6 +33,16 @@ public class PhotoService : IPhotoService
             throw new InvalidOperationException("File is empty.");
         }
 
+        if (file.Length > 5 * 1024 * 1024)
+        {
+            throw new InvalidOperationException("Photo files must be 5 MB or smaller.");
+        }
+
+        if (!file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Only image files can be uploaded.");
+        }
+
         using var stream = file.OpenReadStream();
         var uploadParams = new ImageUploadParams
         {
@@ -51,25 +61,6 @@ public class PhotoService : IPhotoService
         return await _cloudinary.DestroyAsync(deleteParams);
     }
 
-    public async Task<ImageUploadResult> uploadPhotoAsync(IFormFile file)
-
-    {
-        var uploadResult = new ImageUploadResult();
-        if (file.Length>0)
-        {
-            await using var stream = file.OpenReadStream();
-            var uploadParams = new ImageUploadParams
-            {
-                File = new FileDescription(file.FileName, stream),
-                Transformation = new Transformation().Width(500).Height(500).Crop("fill").Gravity("face"), 
-                Folder = "user_photos"
-
-            };
-
-            uploadResult = await _cloudinary.UploadAsync(uploadParams);
-        }
-        return uploadResult;
-    }
 }
 
 

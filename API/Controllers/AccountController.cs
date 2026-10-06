@@ -4,9 +4,8 @@ using API.Entities;
 using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
 using API.Extentions;
+using API.Security;
 
 namespace API.Controllers;
 
@@ -17,18 +16,27 @@ public class AccountController(AppDbContext Context, ITokenService tokenService)
     [HttpPost("register")]
     public async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDTO)
     {
-        if (await UserExists(registerDTO.Email))
+        var email = registerDTO.Email.Trim().ToLowerInvariant();
+        if (await UserExists(email))
         {
             return BadRequest("Email is already taken.");
         }
 
-        using var hmac = new HMACSHA512();
+        var (passwordHash, passwordSalt) = PasswordHasher.Hash(registerDTO.Password);
         var user = new AppUser
         {
-            Email = registerDTO.Email,
-            DisplayName = registerDTO.DisplayName,
-            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDTO.Password)),
-            PasswordSalt = hmac.Key
+            Email = email,
+            DisplayName = registerDTO.DisplayName.Trim(),
+            PasswordHash = passwordHash,
+            PasswordSalt = passwordSalt,
+            Member = new Member
+            {
+                DisplayName = registerDTO.DisplayName.Trim(),
+                DateOfBirth = registerDTO.DateOfBirth!.Value,
+                Gender = registerDTO.Gender.Trim(),
+                City = registerDTO.City.Trim(),
+                Country = registerDTO.Country.Trim()
+            }
         };
 
         Context.Users.Add(user);
@@ -40,16 +48,19 @@ public class AccountController(AppDbContext Context, ITokenService tokenService)
     [HttpPost("login")]
     public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDto)
     {
-        var user = await Context.Users.SingleOrDefaultAsync(x => x.Email == loginDto.Email);
+        var user = await Context.Users.SingleOrDefaultAsync(x => x.Email == loginDto.Email.Trim().ToLower());
 
         if (user == null) return Unauthorized("Invalid email address");
 
-        using var hmac = new HMACSHA512(user.PasswordSalt);
-        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password));
+        var validPassword = user.PasswordSalt.Length == 16
+            ? PasswordHasher.Verify(loginDto.Password, user.PasswordHash, user.PasswordSalt)
+            : PasswordHasher.VerifyLegacyHmac(loginDto.Password, user.PasswordHash, user.PasswordSalt);
+        if (!validPassword) return Unauthorized("Invalid email or password");
 
-        for (var i = 0; i < computedHash.Length; i++)
+        if (user.PasswordSalt.Length != 16)
         {
-            if (computedHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid password");
+            (user.PasswordHash, user.PasswordSalt) = PasswordHasher.Hash(loginDto.Password);
+            await Context.SaveChangesAsync();
         }
 
         return user.ToDTO(tokenService);

@@ -18,6 +18,10 @@ private router = inject(Router);
     displayName: '',
     email: '',
     password: '',
+    dateOfBirth: '',
+    gender: '',
+    city: '',
+    country: '',
   };
 
   register() {

@@ -21,7 +21,7 @@ public class ExeptionMiddleware(RequestDelegate next, ILogger<ExeptionMiddleware
 
             var response = env.IsDevelopment()
                 ? new ApiExpetions(ex.Message, context.Response.StatusCode, ex.StackTrace?.ToString() ?? string.Empty)
-                : new ApiExpetions("Internal Server Error", context.Response.StatusCode, ex.Message);
+                : new ApiExpetions("Internal Server Error", context.Response.StatusCode, string.Empty);
 
             var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 

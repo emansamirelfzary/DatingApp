@@ -13,7 +13,7 @@ export class AccountService {
 
   baseUrl= environment.apiUrl;
 
- login(creds: any) {
+ login(creds: { email: string; password: string }) {
   return this.http.post<User>(this.baseUrl + 'account/login', creds).pipe(
     tap((user: User) => {
       localStorage.setItem('user', JSON.stringify(user));
@@ -27,8 +27,13 @@ logout() {
     this.currentUser.set(null);
   }
 
-  register (creds: any) {
-    return this.http.post(this.baseUrl + 'account/register', creds);
+  register(creds: { email: string; password: string; displayName: string; dateOfBirth: string; gender: string; city: string; country: string }) {
+    return this.http.post<User>(this.baseUrl + 'account/register', creds).pipe(
+      tap((user) => {
+        localStorage.setItem('user', JSON.stringify(user));
+        this.currentUser.set(user);
+      }),
+    );
   }
 /*
   setCurrentUser(){

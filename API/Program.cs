@@ -10,6 +10,13 @@ using API.Middleware;
 using API.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
+var tokenKey = builder.Configuration["TokenKey"];
+if (string.IsNullOrWhiteSpace(tokenKey) || tokenKey.Length < 64)
+{
+    throw new InvalidOperationException("Configure a TokenKey of at least 64 characters through user secrets, environment variables, or appsettings.Local.json.");
+}
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -30,7 +37,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["TokenKey"] ?? throw new InvalidOperationException("Token key is not configured."))),
+                Encoding.UTF8.GetBytes(tokenKey)),
             ValidateIssuer = false,
             ValidateAudience = false 
         };
