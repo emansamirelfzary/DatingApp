@@ -17,7 +17,7 @@
         class="bg-gray-900 border border-gray-800 rounded-full px-4 py-1.5 text-xs text-gray-300 font-medium"
       >
         Total Matches:
-        <span class="text-indigo-400 font-bold">
+        <span class="text-fuchsia-400 font-bold">
           {{ members().length }}
         </span>
       </div>
@@ -32,7 +32,7 @@
         @for (member of members(); track member.id) {
 
           <div
-            class="group bg-gray-900/60 hover:bg-gray-900 border border-gray-800/80 hover:border-indigo-500/50 rounded-2xl p-4 transition-all duration-300 shadow-lg flex flex-col justify-between"
+            class="group bg-gray-900/60 hover:bg-gray-900 border border-gray-800/80 hover:border-fuchsia-500/50 rounded-2xl p-4 transition-all duration-300 shadow-lg flex flex-col justify-between"
           >
 
             <div>
@@ -78,7 +78,7 @@
               <div class="space-y-1 mb-4">
 
                 <h3
-                  class="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors"
+                  class="text-lg font-bold text-white group-hover:text-fuchsia-400 transition-colors"
                 >
                   {{ member.displayName || 'No Name' }}
                 </h3>
@@ -90,11 +90,11 @@
               </div>
 
             </div>
-            
+
             <!-- Profile Action Link -->
             <a
               [routerLink]="['/matches', member.id]"
-              class="w-full text-center py-2.5 px-4 bg-gray-800 hover:bg-indigo-600 text-gray-200 hover:text-white font-medium text-sm rounded-xl border border-gray-700/60 hover:border-transparent transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
+              class="w-full text-center py-2.5 px-4 bg-gray-800 hover:bg-gradient-to-r  hover:from-fuchsia-500 hover:to-pink-500  text-gray-200 hover:text-white font-medium text-sm rounded-xl border border-gray-700/60 hover:border-transparent transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
             >
 
               <span>View Profile</span>

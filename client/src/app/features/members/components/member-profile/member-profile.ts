@@ -83,6 +83,10 @@ export class MemberProfile implements OnInit {
     this.isEditing.set(true);
   }
 
+  updateMainPhoto(photoUrl: string): void {
+    this.member.update((member) => member ? { ...member, photoUrl } : member);
+  }
+
   async cancelEditing(): Promise<void> {
     if (!(await this.confirmDiscardingChanges())) {
       return;

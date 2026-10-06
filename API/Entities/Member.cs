@@ -23,4 +23,18 @@ public  List<Photo> Photos { get; set; } = [];
 // Navigation property to the AppUser entity
 [ForeignKey(nameof(Id))]
 public AppUser User { get; set; } = null!;
+
+public void SetMainPhoto(int photoId)
+{
+    var photo = Photos.SingleOrDefault(photo => photo.Id == photoId)
+        ?? throw new ArgumentException("Photo does not belong to this member.", nameof(photoId));
+
+    foreach (var memberPhoto in Photos)
+    {
+        memberPhoto.IsMain = memberPhoto.Id == photoId;
+    }
+
+    ImageUrl = photo.Url;
+    User.PhotoUrl = photo.Url;
+}
 }

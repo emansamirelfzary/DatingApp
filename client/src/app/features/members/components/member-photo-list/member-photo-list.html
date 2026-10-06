@@ -7,20 +7,67 @@
       : 'grid grid-cols-3 gap-3'"
   >
     @for (photo of photos().slice(0, previewLimit ?? photos().length); track photo.id) {
-      <img
-        [src]="photo.url"
-        [alt]="photo.isMain ? 'Main profile photo' : 'Member photo'"
-        class="aspect-square w-full rounded-xl object-cover border border-gray-800 bg-gray-950"
-      />
+      <figure class="group relative overflow-hidden rounded-xl">
+        <img
+          [src]="photo.url"
+          [alt]="photo.isMain ? 'Main profile photo' : 'Member photo'"
+          class="aspect-square w-full rounded-xl object-cover border border-gray-800 bg-gray-950 transition-transform duration-300 group-hover:scale-105"
+        />
+
+        @if (photo.isMain) {
+          <!-- Main Photo Badge (Icon Only) -->
+          <span
+            class="absolute left-2 top-2 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 p-1.5 text-white shadow-md"
+            title="Main photo"
+          >
+            <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+          </span>
+        } @else if (canUpload) {
+          <!-- Set as Main Icon Button -->
+          <button
+            type="button"
+            class="absolute top-2 right-2 rounded-full p-2 text-white shadow-md backdrop-blur-md bg-black/50 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+            [disabled]="settingMainPhotoId() !== null"
+            (click)="setMainPhoto(photo)"
+            [title]="settingMainPhotoId() === photo.id ? 'Setting main photo...' : 'Set as main photo'"
+          >
+            @if (settingMainPhotoId() === photo.id) {
+              <!-- Loading Spinner -->
+              <svg class="h-4 w-4 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            } @else {
+              <!-- Star Icon -->
+              <svg class="h-4 w-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+              </svg>
+            }
+          </button>
+        }
+      </figure>
     }
   </div>
 } @else {
   <p class="text-sm text-gray-400">This member has not added any photos yet.</p>
 }
 
+@if (setMainPhotoError()) {
+  <p class="mt-2 text-sm text-red-400" role="alert">{{ setMainPhotoError() }}</p>
+}
+
 @if (canUpload) {
   <div class="mt-4">
-    <label for="member-photo-upload" class="inline-flex cursor-pointer items-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60">
+    <!-- Upload Button -->
+    <label
+      for="member-photo-upload"
+      class="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 px-4 py-2 text-sm font-medium text-white shadow-md transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+      </svg>
       <span>{{ isUploading() ? 'Uploading...' : 'Upload photo' }}</span>
       <input
         id="member-photo-upload"

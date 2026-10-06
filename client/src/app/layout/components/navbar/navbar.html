@@ -21,18 +21,18 @@
           <a
             routerLink="/home"
             [routerLinkActiveOptions]="{exact: true}"
-            routerLinkActive="text-indigo-400 font-semibold"
-            class="text-gray-300 hover:text-indigo-400 transition-colors"
+            routerLinkActive="!text-fuchsia-400 font-semibold"
+            class="text-gray-300 hover:text-fuchsia-400 transition-colors"
           >Home</a>
           <a
             routerLink="/matches"
-            routerLinkActive="text-indigo-400 font-semibold"
-            class="text-gray-300 hover:text-indigo-400 transition-colors"
+            routerLinkActive="!text-fuchsia-400 font-semibold"
+            class="text-gray-300 hover:text-fuchsia-400 transition-colors"
           >Matches</a>
           <a
             routerLink="/messages"
-            routerLinkActive="text-indigo-400 font-semibold"
-            class="text-gray-300 hover:text-indigo-400 transition-colors"
+            routerLinkActive="!text-fuchsia-400 font-semibold"
+            class="text-gray-300 hover:text-fuchsia-400 transition-colors"
           >Messages</a>
         </div>
 
@@ -113,7 +113,7 @@
                 (click)="handleSelectTheme(theme, themeDropdown)"
                 [attr.aria-pressed]="selectedTheme() === theme"
                 class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm capitalize transition-colors hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400"
-                [class.text-indigo-400]="selectedTheme() === theme"
+                [class.text-fuchsia-400]="selectedTheme() === theme"
                 [class.text-gray-300]="selectedTheme() !== theme"
               >
                 {{ theme }}
@@ -147,18 +147,18 @@
       <a
         routerLink="/home"
         [routerLinkActiveOptions]="{exact: true}"
-        routerLinkActive="text-indigo-400 font-semibold bg-gray-800"
-        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-indigo-400 hover:bg-gray-800 transition-colors"
+        routerLinkActive="!text-fuchsia-400 font-semibold bg-gray-800"
+        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-fuchsia-400 hover:bg-gray-800 transition-colors"
       >Home</a>
       <a
         routerLink="/matches"
-        routerLinkActive="text-indigo-400 font-semibold bg-gray-800"
-        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-indigo-400 hover:bg-gray-800 transition-colors"
+        routerLinkActive="!text-fuchsia-400 font-semibold bg-gray-800"
+        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-fuchsia-400 hover:bg-gray-800 transition-colors"
       >Matches</a>
       <a
         routerLink="/messages"
-        routerLinkActive="text-indigo-400 font-semibold bg-gray-800"
-        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-indigo-400 hover:bg-gray-800 transition-colors"
+        routerLinkActive="!text-fuchsia-400 font-semibold bg-gray-800"
+        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-fuchsia-400 hover:bg-gray-800 transition-colors"
       >Messages</a>
 
       @if (currentUser(); as user) {

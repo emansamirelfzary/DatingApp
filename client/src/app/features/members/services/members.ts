@@ -38,4 +38,8 @@ export class MembersService {
   updateMember(id: string, member: UpdateMember): Observable<Member> {
     return this.http.put<Member>(this.baseUrl + 'members/' + id, member);
   }
+
+  setMainPhoto(photoId: number): Observable<void> {
+    return this.http.put<void>(this.baseUrl + 'members/set-main-photo/' + photoId, {});
+  }
 }

@@ -65,7 +65,7 @@ public class MembersController(IMemberRepository memberRepository, IPhotoService
         if (memberId == null) return BadRequest("User ID not found in token.");
         if (memberId != id) return Forbid();
 
-        var member = await memberRepository.GetMemberByIdAsync(memberId);
+        var member = await memberRepository.GetMemberForUpdateAsync(memberId);
         if (member == null) return NotFound();
         member.DisplayName = updateMemberDTO.DisplayName;
         member.City = updateMemberDTO.City;
@@ -118,12 +118,20 @@ public class MembersController(IMemberRepository memberRepository, IPhotoService
         var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (memberId == null) return BadRequest("User ID not found in token.");
 
-        var member = await memberRepository.GetMemberByIdAsync(memberId);
+        var member = await memberRepository.GetMemberForUpdateAsync(memberId);
         if (member == null) return NotFound();
 
         if (file == null || file.Length == 0)
         {
             return BadRequest("Please select a photo to upload.");
+        }
+
+        if (!photoService.IsConfigured)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status503ServiceUnavailable,
+                title: "Photo uploads are unavailable",
+                detail: "Configure Cloudinary credentials in API/appsettings.Local.json before uploading photos.");
         }
 
         var result = await photoService.UploadPhotoAsync(file);
@@ -158,4 +166,25 @@ public class MembersController(IMemberRepository memberRepository, IPhotoService
 
         return BadRequest("Problem adding photo");
     }
+    [HttpPut("set-main-photo/{photoId:int}")]
+    public async Task<ActionResult> SetMainPhoto(int photoId)
+    {
+        var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (memberId == null) return BadRequest("User ID not found in token.");
+
+        var member = await memberRepository.GetMemberForUpdateAsync(memberId);
+        if (member == null) return NotFound();
+
+        var photo = member.Photos.SingleOrDefault(p => p.Id == photoId);
+        if (photo == null) return NotFound("Photo not found");
+
+        if (photo.IsMain) return BadRequest("This is already your main photo");
+
+        member.SetMainPhoto(photoId);
+
+        if (await memberRepository.SaveAllAsync()) return NoContent();
+
+        return BadRequest("Failed to set main photo");
+    }
+
 }
