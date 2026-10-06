@@ -18,6 +18,8 @@ export class MemberPhotoList implements OnChanges {
   protected settingMainPhotoId = signal<number | null>(null);
   protected uploadError = signal<string | null>(null);
   protected setMainPhotoError = signal<string | null>(null);
+  deletingPhotoId = signal<number | null>(null);
+  deletePhotoError = signal<string | null>(null);
 
   protected membersService = inject(MembersService);
   protected accountService = inject(AccountService);
@@ -124,4 +126,26 @@ export class MemberPhotoList implements OnChanges {
     this.accountService.currentUser.set(updatedUser);
     localStorage.setItem('user', JSON.stringify(updatedUser));
   }
+
+deletePhoto(photoId: number): void {
+  // Clear any previous error and set the current deleting photo ID
+  this.deletePhotoError.set(null);
+  this.deletingPhotoId.set(photoId);
+
+  this.membersService.deletePhoto(photoId).subscribe({
+    next: () => {
+      // Remove photo from signal state
+      this.photos.update((current) => current.filter((photo) => photo.id !== photoId));
+      // Reset loading state
+      this.deletingPhotoId.set(null);
+    },
+    error: (err) => {
+      console.error('Error deleting photo:', err);
+      // Set error message to display in template
+      this.deletePhotoError.set(err.error || 'Failed to delete photo. Please try again.');
+      // Reset loading state
+      this.deletingPhotoId.set(null);
+    },
+  });
+}
 }

@@ -1,11 +1,12 @@
 @if (isLoading()) {
   <p class="text-sm text-gray-400">Loading photos...</p>
 } @else if (photos().length) {
-  <div
-    [class]="previewLimit === null
-      ? 'grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4'
-      : 'grid grid-cols-3 gap-3'"
-  >
+ <div
+  [class]="previewLimit === null
+    ? 'grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4'
+    : 'grid grid-cols-2 gap-2.5 sm:grid-cols-3'"
+>
+    
     @for (photo of photos().slice(0, previewLimit ?? photos().length); track photo.id) {
       <figure class="group relative overflow-hidden rounded-xl">
         <img
@@ -46,6 +47,31 @@
               </svg>
             }
           </button>
+          <button
+            type="button"
+            class="absolute bottom-2 right-2 rounded-full bg-black/60 p-2 text-white shadow-md backdrop-blur-md transition-colors  focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+            [disabled]="settingMainPhotoId() !== null || deletingPhotoId() !== null"
+            (click)="deletePhoto(photo.id)"
+            [title]="deletingPhotoId() === photo.id ? 'Deleting photo...' : 'Delete photo'"
+            [attr.aria-label]="deletingPhotoId() === photo.id ? 'Deleting photo' : 'Delete photo'"
+          >
+            @if (deletingPhotoId() === photo.id) {
+              <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            } @else {
+             <svg 
+  class="text-white hover:!text-red-600 transition-colors cursor-pointer w-5 h-5 mx-auto" 
+  aria-hidden="true" 
+  fill="currentColor" 
+  viewBox="0 0 20 20" 
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+</svg>
+            }
+          </button>
         }
       </figure>
     }
@@ -56,6 +82,10 @@
 
 @if (setMainPhotoError()) {
   <p class="mt-2 text-sm text-red-400" role="alert">{{ setMainPhotoError() }}</p>
+}
+
+@if (deletePhotoError()) {
+  <p class="mt-2 text-sm text-red-400" role="alert">{{ deletePhotoError() }}</p>
 }
 
 @if (canUpload) {

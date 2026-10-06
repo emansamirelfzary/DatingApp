@@ -187,4 +187,33 @@ public class MembersController(IMemberRepository memberRepository, IPhotoService
         return BadRequest("Failed to set main photo");
     }
 
+[HttpDelete("delete-photo/{photoId:int}")]
+    public async Task<ActionResult> DeletePhoto(int photoId)
+    {
+        var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (memberId == null) return BadRequest("User ID not found in token.");
+
+        var member = await memberRepository.GetMemberForUpdateAsync(memberId);
+        if (member == null) return NotFound();
+
+        var photo = member.Photos.SingleOrDefault(p => p.Id == photoId);
+        if (photo == null) return NotFound("Photo not found");
+
+        if (photo.IsMain) return BadRequest("You cannot delete your main photo");
+
+        if (photo.PublicId != null)
+        {
+            var result = await photoService.DeletePhotoAsync(photo.PublicId);
+            if (result.Error != null)
+            {
+                return BadRequest(result.Error.Message);
+            }
+        }
+
+        member.Photos.Remove(photo);
+
+        if (await memberRepository.SaveAllAsync()) return NoContent();
+
+        return BadRequest("Failed to delete the photo");
+    }
 }

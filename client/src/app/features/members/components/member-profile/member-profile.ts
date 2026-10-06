@@ -81,6 +81,12 @@ export class MemberProfile implements OnInit {
   startEditing(): void {
     this.saveError.set(null);
     this.isEditing.set(true);
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { edit: true },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   updateMainPhoto(photoUrl: string): void {
