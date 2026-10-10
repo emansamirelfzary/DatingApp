@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { MembersService } from '../../services/members';
 import { Member } from '../../interfaces/member.interface';
 import { AccountService } from '../../../../core/services/account-service';
+import { PaginatedResult } from '../../../../shared/types/pagination';
 
 @Component({
   selector: 'app-members',
@@ -15,10 +16,18 @@ export class Members implements OnInit {
   private memberService = inject(MembersService);
   private accountService = inject(AccountService);
 
-  private allMembers = signal<Member[]>([]);
+  private allMembers = signal<PaginatedResult<Member>>({
+    items: [],
+    metadata: {
+      currentPage: 1,
+      totalPages: 0,
+      pageSize: 5,
+      totalCount: 0,
+    },
+  });
   protected members = computed(() => {
     const currentUserId = this.accountService.currentUser()?.id;
-    return this.allMembers().filter((member) => member.id !== currentUserId);
+    return this.allMembers().items.filter((member) => member.id !== currentUserId);
   });
 
   ngOnInit(): void {

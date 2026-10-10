@@ -31,7 +31,20 @@ describe('Members', () => {
       imports: [Members],
       providers: [
         provideRouter([]),
-        { provide: MembersService, useValue: { getMembers: () => of([currentMember, otherMember]) } },
+        {
+          provide: MembersService,
+          useValue: {
+            getMembers: () => of({
+              items: [currentMember, otherMember],
+              metadata: {
+                currentPage: 1,
+                totalPages: 1,
+                pageSize: 5,
+                totalCount: 2,
+              },
+            }),
+          },
+        },
         { provide: AccountService, useValue: { currentUser: signal({ id: currentMember.id }) } },
       ],
     }).compileComponents();

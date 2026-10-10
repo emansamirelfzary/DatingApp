@@ -1,9 +1,10 @@
 // member.service.ts
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient , HttpParams} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Member, Photo, UpdateMember } from '../interfaces/member.interface';
 import { environment } from '../../../../environments/environment.development';
+import { PaginatedResult } from '../../../shared/types/pagination';
 
 
 
@@ -15,8 +16,11 @@ export class MembersService {
   private baseUrl = environment.apiUrl;
 
   // GET: http://localhost:5001/api/members
-  getMembers(): Observable<Member[]> {
-    return this.http.get<Member[]>(this.baseUrl + 'members');
+  getMembers(pageNumber = 1, pageSize = 5): Observable<PaginatedResult<Member>> {
+    let params = new HttpParams();
+    params = params.set('pageNumber', pageNumber.toString());
+    params = params.set('pageSize', pageSize.toString());
+    return this.http.get<PaginatedResult<Member>>(this.baseUrl + 'members', { params });
   }
 
   // GET: http://localhost:5001/api/members/1

@@ -1,5 +1,6 @@
 using API.DTOs;
 using API.Entities;
+using API.Helpers;
 using API.Interfaces;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -13,11 +14,14 @@ namespace API.Controllers;
 public class MembersController(IMemberRepository memberRepository, IPhotoService photoService) : BaseApiController
 {
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<MemberDTO>>> GetMembers()
+    public async Task<ActionResult<PaginatedResult<MemberDTO>>> GetMembers([FromQuery] PagingParams pagingParams)
     {
-        var members = await memberRepository.GetMembersAsync();
+        var currentMemberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentMemberId == null) return Unauthorized();
 
-        var memberDtos = members.Select(member => new MemberDTO(
+        var members = await memberRepository.GetMembersAsync(pagingParams, currentMemberId);
+
+        var memberDtos = members.Items.Select<Member, MemberDTO>(member => new MemberDTO(
             member.Id,
             member.DisplayName,
             member.User.Email,
@@ -31,7 +35,11 @@ public class MembersController(IMemberRepository memberRepository, IPhotoService
             member.Gender,
             member.Country)).ToList();
 
-        return Ok(memberDtos);
+        return Ok(new PaginatedResult<MemberDTO>
+        {
+            Items = memberDtos,
+            Metadata = members.Metadata
+        });
     }
 
     [Authorize]
