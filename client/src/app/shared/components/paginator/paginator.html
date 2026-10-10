@@ -1,0 +1,47 @@
+]<div class="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-3 bg-base-200/50 rounded-xl border border-base-300">
+  
+  <!-- Left Side: Page Size Selector & Range Info -->
+  <div class="flex items-center gap-4 text-sm text-base-content/80">
+    <div class="flex items-center gap-2">
+      <span>Show</span>
+      <select 
+        [value]="pageSize()" 
+        (change)="onPageChange(undefined, $any($event.target))" 
+        class="select select-sm select-bordered bg-base-100 focus:outline-none"
+      >
+        @for (size of pageSizeOptions(); track size) {
+          <option [value]="size" [selected]="size === pageSize()">{{ size }}</option>
+        }
+      </select>
+      <span>per page</span>
+    </div>
+
+    <span class="hidden md:inline-block text-base-content/30">|</span>
+
+   <div class="flex items-center w-full gap-3 py-3">
+  <div class="text-sm">
+    Showing {{ (pageNumber() - 1) * pageSize() + 1 }} - {{ lastItemIndex() }} of {{ totalCount() }}
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button
+      class="btn btn-circle btn-ghost"
+      [disabled]="pageNumber() === 1"
+      (click)="onPageChange(pageNumber() - 1)"
+    >
+      &larr;
+    </button>
+    <button
+      class="btn btn-circle btn-ghost"
+      [disabled]="lastItemIndex() >= totalCount()"
+      (click)="onPageChange(pageNumber() + 1)"
+    >
+      &rarr;
+    </button>
+  </div>
+</div>
+  </div>
+
+
+
+</div>

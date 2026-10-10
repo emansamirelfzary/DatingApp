@@ -4,11 +4,12 @@ import { MembersService } from '../../services/members';
 import { Member } from '../../interfaces/member.interface';
 import { AccountService } from '../../../../core/services/account-service';
 import { PaginatedResult } from '../../../../shared/types/pagination';
+import { Paginator } from '../../../../shared/components/paginator/paginator';
 
 @Component({
   selector: 'app-members',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, Paginator],
   templateUrl: './members.html',
   styleUrl: './members.css',
 })
@@ -16,7 +17,7 @@ export class Members implements OnInit {
   private memberService = inject(MembersService);
   private accountService = inject(AccountService);
 
-  private allMembers = signal<PaginatedResult<Member>>({
+  protected allMembers = signal<PaginatedResult<Member>>({
     items: [],
     metadata: {
       currentPage: 1,
@@ -43,5 +44,19 @@ export class Members implements OnInit {
         console.error('Error fetching members:', err);
       }
     });
+  }
+onPageChange(event: { pageNumber: number; pageSize: number }): void {
+    // Correctly update the signal immutably
+    this.allMembers.update((prev) => ({
+      ...prev,
+      metadata: {
+        ...prev.metadata,
+        currentPage: event.pageNumber,
+        pageSize: event.pageSize,
+      },
+    }));
+
+    // Fetch the new page from the API
+    this.loadMembers();
   }
 }
