@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Member } from '../../interfaces/member.interface';
 import { Likes } from '../../services/likes';
@@ -12,6 +12,7 @@ import { finalize } from 'rxjs';
 })
 export class MemberCard {
   readonly member = input.required<Member>();
+  readonly likeChanged = output<{ memberId: string; isLiked: boolean }>();
 
   private readonly likesService = inject(Likes);
   protected readonly isLiked = computed(() =>
@@ -31,11 +32,11 @@ export class MemberCard {
       .subscribe({
         next: () => {
           const memberId = this.member().id;
+          const wasLiked = this.likesService.likeIds().includes(memberId);
           this.likesService.likeIds.update((ids) =>
-            ids.includes(memberId)
-              ? ids.filter((id) => id !== memberId)
-              : [...ids, memberId],
+            wasLiked ? ids.filter((id) => id !== memberId) : [...ids, memberId],
           );
+          this.likeChanged.emit({ memberId, isLiked: !wasLiked });
         },
         error: (err) => {
           console.error('Error toggling member like:', err);

@@ -1,3 +1,4 @@
+using API.DTOs;
 using API.Entities;
 using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -49,13 +50,27 @@ public class LikesController(ILikesRepository likesRepository) : BaseApiControll
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<Member>>> GetMemberLikes(string predicate)
+    public async Task<ActionResult<IReadOnlyList<MemberDTO>>> GetMemberLikes(string predicate)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
         var members = await likesRepository.GetMemberLikes(predicate, userId);
 
-        return Ok(members);
+        var memberDtos = members.Select(member => new MemberDTO(
+            member.Id,
+            member.DisplayName,
+            member.User.Email,
+            member.DateOfBirth,
+            member.ImageUrl,
+            member.Age,
+            member.City,
+            member.Description,
+            member.Created,
+            member.LastActive,
+            member.Gender,
+            member.Country));
+
+        return Ok(memberDtos);
     }
 }

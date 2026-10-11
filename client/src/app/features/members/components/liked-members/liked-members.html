@@ -1,0 +1,89 @@
+<main class="min-h-screen bg-gray-950 px-4 py-10 text-white sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-7xl">
+    <header class="mb-8">
+      <p class="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-fuchsia-400">
+        <svg
+          aria-hidden="true"
+          class="h-5 w-5"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+          />
+        </svg>
+        Your connections
+      </p>
+      <h1 class="text-3xl font-bold tracking-tight">Liked members</h1>
+      <p class="mt-1 text-sm text-gray-400">
+        Members you’ve liked are all in one place.
+      </p>
+    </header>
+
+    @if (isLoading()) {
+      <div class="py-16 text-center text-sm text-gray-400" role="status">
+        Loading liked members…
+      </div>
+    } @else if (errorMessage()) {
+      <div
+        class="rounded-2xl border border-red-900/60 bg-red-950/30 p-6 text-center"
+        role="alert"
+      >
+        <p class="mb-4 text-sm text-red-200">{{ errorMessage() }}</p>
+        <button
+          type="button"
+          (click)="loadLikedMembers()"
+          class="rounded-xl border border-red-800 px-4 py-2 text-sm text-red-100 transition hover:bg-red-900/50"
+        >
+          Try again
+        </button>
+      </div>
+    } @else if (members().length > 0) {
+      <p class="mb-4 text-sm text-gray-400">
+        {{ members().length }} liked
+        {{ members().length === 1 ? 'member' : 'members' }}
+      </p>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        @for (member of members(); track member.id) {
+          <app-member-card
+            [member]="member"
+            (likeChanged)="removeIfUnliked($event)"
+          />
+        }
+      </div>
+    } @else {
+      <section
+        class="rounded-3xl border border-gray-800 bg-gray-900/40 px-6 py-16 text-center"
+      >
+        <div
+          class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-fuchsia-500/10 text-fuchsia-400"
+        >
+          <svg
+            aria-hidden="true"
+            class="h-7 w-7"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"
+            />
+          </svg>
+        </div>
+        <h2 class="mb-2 text-lg font-semibold text-white">No liked members yet</h2>
+        <p class="mb-5 text-sm text-gray-400">
+          Browse matches and tap the heart on a profile you like.
+        </p>
+        <a
+          routerLink="/matches"
+          class="inline-flex rounded-xl bg-gradient-to-r from-fuchsia-600 to-pink-600 px-4 py-2.5 text-sm font-medium text-white transition hover:from-fuchsia-500 hover:to-pink-500"
+        >
+          Browse matches
+        </a>
+      </section>
+    }
+  </div>
+</main>

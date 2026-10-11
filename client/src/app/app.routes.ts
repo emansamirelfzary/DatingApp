@@ -14,6 +14,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/members/components/members/members').then(m => m.Members),canActivate: [authGuardGuard]
   },
   {
+    path: 'likes',
+    loadComponent: () => import('./features/members/components/liked-members/liked-members').then(m => m.LikedMembers),
+    canActivate: [authGuardGuard]
+  },
+  {
     path: 'matches/:id',
     loadComponent: () => import('./features/members/components/member-profile/member-profile').then(m => m.MemberProfile),canActivate: [authGuardGuard], canDeactivate: [memberEditGuard]
   },

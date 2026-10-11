@@ -40,11 +40,15 @@ public class LikesRepository(AppDbContext context) : ILikesRepository
         case "liked":
             return await query
                 .Where(x => x.SourceMemberId == memberId)
+                .Include(x => x.TargetMember)
+                .ThenInclude(member => member.User)
                 .Select(x => x.TargetMember)
                 .ToListAsync();
         case "likedBy":
             return await query
                 .Where(x => x.TargetMemberId == memberId)
+                .Include(x => x.SourceMember)
+                .ThenInclude(member => member.User)
                 .Select(x => x.SourceMember)
                 .ToListAsync();
         default: // mutual
@@ -53,6 +57,8 @@ public class LikesRepository(AppDbContext context) : ILikesRepository
             return await query
                 .Where(x => x.TargetMemberId == memberId
                     && likeIds.Contains(x.SourceMemberId))
+                .Include(x => x.SourceMember)
+                .ThenInclude(member => member.User)
                 .Select(x => x.SourceMember)
                 .ToListAsync();
     }

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, HostListener, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, DestroyRef, HostListener, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MembersService } from '../../services/members';
@@ -7,7 +7,8 @@ import { DatePipe } from '@angular/common';
 import { MemberPhotoList } from '../member-photo-list/member-photo-list';
 import { MemberEdit } from '../member-edit/member-edit';
 import { AccountService } from '../../../../core/services/account-service';
-import { of, switchMap } from 'rxjs';
+import { finalize, of, switchMap } from 'rxjs';
+import { Likes } from '../../services/likes';
 
 @Component({
   selector: 'app-member-profile',
@@ -23,9 +24,15 @@ export class MemberProfile implements OnInit {
   private destroyRef = inject(DestroyRef);
   private membersService = inject(MembersService);
   private accountService = inject(AccountService);
+  private likesService = inject(Likes);
 
   member = signal<Member | null>(null);
   currentUser = this.accountService.currentUser;
+  isLiked = computed(() => {
+    const memberId = this.member()?.id;
+    return memberId ? this.likesService.likeIds().includes(memberId) : false;
+  });
+  isTogglingLike = signal(false);
   isEditing = signal(false);
   isSaving = signal(false);
   saveError = signal<string | null>(null);
@@ -91,6 +98,31 @@ export class MemberProfile implements OnInit {
 
   updateMainPhoto(photoUrl: string): void {
     this.member.update((member) => member ? { ...member, photoUrl } : member);
+  }
+
+  toggleLike(): void {
+    const member = this.member();
+    if (!member || member.id === this.currentUser()?.id || this.isTogglingLike()) {
+      return;
+    }
+
+    this.isTogglingLike.set(true);
+    this.likesService
+      .toggleLike(member.id)
+      .pipe(finalize(() => this.isTogglingLike.set(false)))
+      .subscribe({
+        next: () => {
+          const wasLiked = this.isLiked();
+          this.likesService.likeIds.update((ids) =>
+            wasLiked
+              ? ids.filter((id) => id !== member.id)
+              : [...ids, member.id],
+          );
+        },
+        error: (err) => {
+          console.error('Error toggling member like:', err);
+        },
+      });
   }
 
   async cancelEditing(): Promise<void> {

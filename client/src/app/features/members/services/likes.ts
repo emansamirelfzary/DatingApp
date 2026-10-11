@@ -23,10 +23,9 @@ export class Likes {
   }
 
   // GET: api/likes?predicate=liked
-  getLikes(predicate: string): Observable<Member[]> {
-    
-
-    return this.http.get<Member[]>(this.baseUrl + 'likes?predicate=' + predicate);
+  getLikes(predicate: 'liked' | 'likedBy' | 'mutual' = 'liked'): Observable<Member[]> {
+    const params = new HttpParams().set('predicate', predicate);
+    return this.http.get<Member[]>(this.baseUrl + 'likes', { params });
   }
 
   clearLikesIds(){
