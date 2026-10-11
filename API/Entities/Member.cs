@@ -20,6 +20,10 @@ public int Age => DateTime.Today.Year - DateOfBirth.Year - (DateTime.Today.DayOf
 // Navigation property to the Photo entity
 public  List<Photo> Photos { get; set; } = [];
 
+public List<MemberLike> LikedByMembers { get; set; } = [];
+
+public List<MemberLike> LikedMembers { get; set; } = [];
+
 // Navigation property to the AppUser entity
 [ForeignKey(nameof(Id))]
 public AppUser User { get; set; } = null!;
