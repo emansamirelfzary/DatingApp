@@ -29,3 +29,16 @@ export interface UpdateMember {
   country: string;
   bio: string;
 }
+
+export interface MemberFilters {
+  gender?: string;
+  minAge?: number;
+  maxAge?: number;
+  orderBy?:
+    | 'lastActive'
+    | 'lastActiveAsc'
+    | 'created'
+    | 'createdAsc'
+    | 'displayName'
+    | 'displayNameDesc';
+}

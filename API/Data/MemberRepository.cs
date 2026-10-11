@@ -31,21 +31,40 @@ public class MemberRepository(AppDbContext context) : IMemberRepository
             .FirstOrDefaultAsync(member => member.Id == id);
     }
 
-    public async Task<PaginatedResult<Member>> GetMembersAsync(MemberParams MemberParams, string excludedMemberId)
+    public async Task<PaginatedResult<Member>> GetMembersAsync(MemberParams memberParams, string excludedMemberId)
     {
+        var minAge = Math.Min(memberParams.MinAge, memberParams.MaxAge);
+        var maxAge = Math.Max(memberParams.MinAge, memberParams.MaxAge);
+        var today = DateTime.UtcNow.Date;
+        var minDob = DateOnly.FromDateTime(today.AddYears(-maxAge - 1));
+        var maxDob = DateOnly.FromDateTime(today.AddYears(-minAge));
+
         var query = context.Members
             .AsNoTracking()
             .Include(member => member.User)
-            .Where(member => member.Id != excludedMemberId);
+            .Where(member => member.Id != excludedMemberId)
+            .Where(member => member.DateOfBirth >= minDob && member.DateOfBirth <= maxDob);
 
-if(MemberParams.Gender != null)
+        if (!string.IsNullOrWhiteSpace(memberParams.Gender))
         {
-            query= query.Where(x=>x.Gender==MemberParams.Gender);
+            var gender = memberParams.Gender.Trim().ToLower();
+            query = query.Where(member => member.Gender.ToLower() == gender);
         }
+
+        query = memberParams.OrderBy.ToLowerInvariant() switch
+        {
+            "created" => query.OrderByDescending(member => member.Created),
+            "createdasc" => query.OrderBy(member => member.Created),
+            "lastactiveasc" => query.OrderBy(member => member.LastActive),
+            "displayname" => query.OrderBy(member => member.DisplayName.ToLower()),
+            "displaynamedesc" => query.OrderByDescending(member => member.DisplayName.ToLower()),
+            _ => query.OrderByDescending(member => member.LastActive)
+        };
+
         return await PaginatedResult<Member>.CreateAsync(
             query,
-            MemberParams.PageNumber,
-            MemberParams.PageSize);
+            memberParams.PageNumber,
+            memberParams.PageSize);
     }
 
     public async Task<IReadOnlyList<Photo>> GetPhotosByMemberIdAsync(string memberId)

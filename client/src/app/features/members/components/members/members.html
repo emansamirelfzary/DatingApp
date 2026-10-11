@@ -18,10 +18,103 @@
       >
         Total Matches:
         <span class="text-fuchsia-400 font-bold">
-          {{ members().length }}
+          {{ allMembers().metadata.totalCount }}
         </span>
       </div>
     </div>
+
+    <form
+      [formGroup]="filterForm"
+      (ngSubmit)="applyFilters()"
+      class="mb-8 grid grid-cols-1 gap-4 rounded-2xl border border-gray-800 bg-gray-900/60 p-4 sm:grid-cols-2 lg:grid-cols-6"
+    >
+      <label class="flex flex-col gap-1 text-sm text-gray-300">
+        Gender
+        <span class="relative">
+          <select
+            formControlName="gender"
+            class="w-full appearance-none rounded-xl border border-gray-700 bg-gray-950/80 px-3 py-2.5 pr-10 text-white shadow-inner shadow-black/20 transition hover:border-gray-600 focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30"
+          >
+            <option value="">All genders</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+          <svg
+            aria-hidden="true"
+            class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7" />
+          </svg>
+        </span>
+      </label>
+
+      <label class="flex flex-col gap-1 text-sm text-gray-300">
+        Min age
+        <input
+          type="number"
+          formControlName="minAge"
+          min="18"
+          max="100"
+          class="rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-white focus:border-fuchsia-400 focus:outline-none"
+        />
+      </label>
+
+      <label class="flex flex-col gap-1 text-sm text-gray-300">
+        Max age
+        <input
+          type="number"
+          formControlName="maxAge"
+          min="18"
+          max="100"
+          class="rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-white focus:border-fuchsia-400 focus:outline-none"
+        />
+      </label>
+
+      <label class="flex flex-col gap-1 text-sm text-gray-300">
+        Sort by
+        <span class="relative">
+          <select
+            formControlName="orderBy"
+            class="w-full appearance-none rounded-xl border border-gray-700 bg-gray-950/80 px-3 py-2.5 pr-10 text-white shadow-inner shadow-black/20 transition hover:border-gray-600 focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30"
+          >
+            <option value="lastActive">Recently active</option>
+            <option value="lastActiveAsc">Least recently active</option>
+            <option value="created">Newest members</option>
+            <option value="createdAsc">Oldest members</option>
+            <option value="displayName">Name (A–Z)</option>
+            <option value="displayNameDesc">Name (Z–A)</option>
+          </select>
+          <svg
+            aria-hidden="true"
+            class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7" />
+          </svg>
+        </span>
+      </label>
+
+      <div class="flex items-end gap-2 sm:col-span-2 lg:col-span-2">
+        <button
+          type="submit"
+          class="flex-1 rounded-xl bg-gradient-to-r from-fuchsia-600 to-pink-600 px-4 py-2.5 text-sm font-medium text-white hover:from-fuchsia-500 hover:to-pink-500"
+        >
+          Apply
+        </button>
+        <button
+          type="button"
+          (click)="resetFilters()"
+          class="flex-1 rounded-xl border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm font-medium text-gray-200 hover:border-fuchsia-500/50 hover:text-white"
+        >
+          Reset
+        </button>
+      </div>
+    </form>
     <!-- Members Grid -->
     
     @if (members().length > 0) {
@@ -92,7 +185,10 @@
                 </h3>
 
                 <p class="text-xs text-gray-400 truncate">
-                  {{ member.email || 'No Email' }}
+                  {{ member.age }} yrs · {{ member.gender }}
+                </p>
+                <p class="text-xs text-gray-500 truncate">
+                  {{ member.city }}@if (member.country) {, {{ member.country }}}
                 </p>
 
               </div>
@@ -139,9 +235,16 @@
           No matches found
         </h3>
 
-        <p class="text-sm text-gray-400">
-          There are currently no members available.
+        <p class="text-sm text-gray-400 mb-4">
+          Try adjusting your filters or check back later.
         </p>
+        <button
+          type="button"
+          (click)="resetFilters()"
+          class="rounded-xl border border-gray-700 bg-gray-800 px-4 py-2 text-sm text-gray-200 hover:border-fuchsia-500/50"
+        >
+          Clear filters
+        </button>
       </div>
 
     }

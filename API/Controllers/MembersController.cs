@@ -14,12 +14,13 @@ namespace API.Controllers;
 public class MembersController(IMemberRepository memberRepository, IPhotoService photoService) : BaseApiController
 {
     [HttpGet]
-    public async Task<ActionResult<PaginatedResult<MemberDTO>>> GetMembers([FromQuery] PagingParams pagingParams)
+    public async Task<ActionResult<PaginatedResult<MemberDTO>>> GetMembers([FromQuery] MemberParams memberParams)
     {
         var currentMemberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (currentMemberId == null) return Unauthorized();
 
-        var members = await memberRepository.GetMembersAsync(MemberParams, currentMemberId);
+        memberParams.CurrentMemberId = currentMemberId;
+        var members = await memberRepository.GetMembersAsync(memberParams, currentMemberId);
 
         var memberDtos = members.Items.Select<Member, MemberDTO>(member => new MemberDTO(
             member.Id,

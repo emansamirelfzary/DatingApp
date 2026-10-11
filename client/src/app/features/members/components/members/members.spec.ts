@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
+import { vi } from 'vitest';
 import { Members } from './members';
 import { MembersService } from '../../services/members';
 import { AccountService } from '../../../../core/services/account-service';
@@ -10,6 +11,7 @@ import { Member } from '../../interfaces/member.interface';
 describe('Members', () => {
   let component: Members;
   let fixture: ComponentFixture<Members>;
+  let getMembersSpy: ReturnType<typeof vi.fn>;
   const currentMember: Member = {
     id: 'current-user',
     displayName: 'Current User',
@@ -27,6 +29,16 @@ describe('Members', () => {
   const otherMember: Member = { ...currentMember, id: 'other-user', displayName: 'Other User' };
 
   beforeEach(async () => {
+    getMembersSpy = vi.fn(() => of({
+      items: [currentMember, otherMember],
+      metadata: {
+        currentPage: 1,
+        totalPages: 1,
+        pageSize: 5,
+        totalCount: 2,
+      },
+    }));
+
     await TestBed.configureTestingModule({
       imports: [Members],
       providers: [
@@ -34,15 +46,7 @@ describe('Members', () => {
         {
           provide: MembersService,
           useValue: {
-            getMembers: () => of({
-              items: [currentMember, otherMember],
-              metadata: {
-                currentPage: 1,
-                totalPages: 1,
-                pageSize: 5,
-                totalCount: 2,
-              },
-            }),
+            getMembers: getMembersSpy,
           },
         },
         { provide: AccountService, useValue: { currentUser: signal({ id: currentMember.id }) } },
@@ -63,5 +67,34 @@ describe('Members', () => {
     const renderedMembers = fixture.nativeElement.textContent as string;
     expect(renderedMembers).toContain(otherMember.displayName);
     expect(renderedMembers).not.toContain(currentMember.displayName);
+  });
+
+  it('sends selected filters when applying', () => {
+    component.filterForm.patchValue({
+      gender: 'male',
+      minAge: 21,
+      maxAge: 40,
+      orderBy: 'created',
+    });
+    component.applyFilters();
+
+    expect(getMembersSpy).toHaveBeenCalledWith(1, 5, {
+      gender: 'male',
+      minAge: 21,
+      maxAge: 40,
+      orderBy: 'created',
+    });
+  });
+
+  it('sends alphabetical sorting when selected', () => {
+    component.filterForm.patchValue({ orderBy: 'displayNameDesc' });
+    component.applyFilters();
+
+    expect(getMembersSpy).toHaveBeenLastCalledWith(1, 5, {
+      gender: undefined,
+      minAge: 18,
+      maxAge: 100,
+      orderBy: 'displayNameDesc',
+    });
   });
 });

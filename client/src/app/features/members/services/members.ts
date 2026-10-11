@@ -2,7 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient , HttpParams} from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Member, Photo, UpdateMember } from '../interfaces/member.interface';
+import { Member, MemberFilters, Photo, UpdateMember } from '../interfaces/member.interface';
 import { environment } from '../../../../environments/environment.development';
 import { PaginatedResult } from '../../../shared/types/pagination';
 
@@ -16,10 +16,28 @@ export class MembersService {
   private baseUrl = environment.apiUrl;
 
   // GET: http://localhost:5001/api/members
-  getMembers(pageNumber = 1, pageSize = 5): Observable<PaginatedResult<Member>> {
-    let params = new HttpParams();
-    params = params.set('pageNumber', pageNumber.toString());
-    params = params.set('pageSize', pageSize.toString());
+  getMembers(
+    pageNumber = 1,
+    pageSize = 5,
+    filters: MemberFilters = {},
+  ): Observable<PaginatedResult<Member>> {
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (filters.gender) {
+      params = params.set('gender', filters.gender);
+    }
+    if (filters.minAge != null) {
+      params = params.set('minAge', filters.minAge.toString());
+    }
+    if (filters.maxAge != null) {
+      params = params.set('maxAge', filters.maxAge.toString());
+    }
+    if (filters.orderBy) {
+      params = params.set('orderBy', filters.orderBy);
+    }
+
     return this.http.get<PaginatedResult<Member>>(this.baseUrl + 'members', { params });
   }
 
