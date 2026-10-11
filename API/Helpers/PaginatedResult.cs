@@ -1,24 +1,43 @@
+
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace API.Helpers;
 
 public class PaginatedResult<T>
 {
     public PaginationMetadata Metadata { get; set; } = default!;
-    public List<T> Items { get; set; } = default!;
+    public List<T> Items { get; set; } = [];
 
-    public static async Task<PaginatedResult<T>> CreateAsync(IQueryable<T> query, int pageNumber, int pageSize)
+    public static async Task<PaginatedResult<T>> CreateAsync(
+        IQueryable<T> query,
+        int pageNumber,
+        int pageSize)
     {
+        if (pageNumber < 1)
+            throw new ArgumentOutOfRangeException(nameof(pageNumber));
+
+        if (pageSize < 1)
+            throw new ArgumentOutOfRangeException(nameof(pageSize));
+
         var count = await query.CountAsync();
-        var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        var totalPages = (int)Math.Ceiling(count / (double)pageSize);
+
+        var currentPage = totalPages == 0
+            ? 1
+            : Math.Min(pageNumber, totalPages);
+
+        var items = await query
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
 
         var metadata = new PaginationMetadata
         {
-            CurrentPage = pageNumber,
+            CurrentPage = currentPage,
             PageSize = pageSize,
             TotalCount = count,
-            TotalPages = (int)Math.Ceiling(count / (double)pageSize)
+            TotalPages = totalPages
         };
 
         return new PaginatedResult<T>

@@ -8,7 +8,7 @@ public interface IMemberRepository
     void AddMember(Member member);
     void UpdateMember(Member member); // Add this method signature
     Task<bool> SaveAllAsync();
-    Task<PaginatedResult<Member>> GetMembersAsync(PagingParams pagingParams, string excludedMemberId);
+    Task<PaginatedResult<Member>> GetMembersAsync(MemberParams MemberParams, string excludedMemberId);
     Task<Member?> GetMemberByIdAsync(string id);
     Task<Member?> GetMemberForUpdateAsync(string id);
     Task<IReadOnlyList<Photo>> GetPhotosByMemberIdAsync(string memberId);

@@ -17,13 +17,16 @@ export class Paginator {
     return Math.min(this.pageNumber() * this.pageSize(), this.totalCount());
   });
 
-  onPageChange(newPage?: number,pageSize?: number) {
-    if (newPage) {
+  onPageChange(newPage?: number, newPageSize?: number | HTMLSelectElement): void {
+    if (newPage !== undefined) {
       this.pageNumber.set(newPage);
     }
-    if (pageSize) {
-     const size = Number((pageSize as unknown as HTMLSelectElement).value);
-      this.pageSize.set(pageSize);
+    if (newPageSize !== undefined) {
+      const size = typeof newPageSize === 'number'
+        ? newPageSize
+        : Number(newPageSize.value);
+      this.pageSize.set(size);
+      this.pageNumber.set(1);
     }
     this.pageChange.emit({ pageNumber: this.pageNumber(), pageSize: this.pageSize() });
   }

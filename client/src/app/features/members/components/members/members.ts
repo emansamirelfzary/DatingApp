@@ -35,8 +35,11 @@ export class Members implements OnInit {
     this.loadMembers();
   }
 
-  private loadMembers(): void {
-    this.memberService.getMembers().subscribe({
+  private loadMembers(
+    pageNumber = this.allMembers().metadata.currentPage,
+    pageSize = this.allMembers().metadata.pageSize,
+  ): void {
+    this.memberService.getMembers(pageNumber, pageSize).subscribe({
       next: (members) => {
         this.allMembers.set(members);
       },
@@ -45,18 +48,7 @@ export class Members implements OnInit {
       }
     });
   }
-onPageChange(event: { pageNumber: number; pageSize: number }): void {
-    // Correctly update the signal immutably
-    this.allMembers.update((prev) => ({
-      ...prev,
-      metadata: {
-        ...prev.metadata,
-        currentPage: event.pageNumber,
-        pageSize: event.pageSize,
-      },
-    }));
-
-    // Fetch the new page from the API
-    this.loadMembers();
+  onPageChange(event: { pageNumber: number; pageSize: number }): void {
+    this.loadMembers(event.pageNumber, event.pageSize);
   }
 }

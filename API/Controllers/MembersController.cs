@@ -19,7 +19,7 @@ public class MembersController(IMemberRepository memberRepository, IPhotoService
         var currentMemberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (currentMemberId == null) return Unauthorized();
 
-        var members = await memberRepository.GetMembersAsync(pagingParams, currentMemberId);
+        var members = await memberRepository.GetMembersAsync(MemberParams, currentMemberId);
 
         var memberDtos = members.Items.Select<Member, MemberDTO>(member => new MemberDTO(
             member.Id,

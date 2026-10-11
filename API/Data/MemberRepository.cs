@@ -31,17 +31,21 @@ public class MemberRepository(AppDbContext context) : IMemberRepository
             .FirstOrDefaultAsync(member => member.Id == id);
     }
 
-    public async Task<PaginatedResult<Member>> GetMembersAsync(PagingParams pagingParams, string excludedMemberId)
+    public async Task<PaginatedResult<Member>> GetMembersAsync(MemberParams MemberParams, string excludedMemberId)
     {
         var query = context.Members
             .AsNoTracking()
             .Include(member => member.User)
             .Where(member => member.Id != excludedMemberId);
 
+if(MemberParams.Gender != null)
+        {
+            query= query.Where(x=>x.Gender==MemberParams.Gender);
+        }
         return await PaginatedResult<Member>.CreateAsync(
             query,
-            pagingParams.PageNumber,
-            pagingParams.PageSize);
+            MemberParams.PageNumber,
+            MemberParams.PageSize);
     }
 
     public async Task<IReadOnlyList<Photo>> GetPhotosByMemberIdAsync(string memberId)

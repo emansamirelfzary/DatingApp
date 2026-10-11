@@ -1,47 +1,65 @@
-]<div class="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-3 bg-base-200/50 rounded-xl border border-base-300">
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-base-200/80 border border-base-300 rounded-2xl shadow-sm backdrop-blur-md transition-colors duration-200">
   
-  <!-- Left Side: Page Size Selector & Range Info -->
-  <div class="flex items-center gap-4 text-sm text-base-content/80">
-    <div class="flex items-center gap-2">
-      <span>Show</span>
+  <!-- Left Side: Page Size Selector & Info Badge -->
+  <div class="flex items-center gap-4 text-xs sm:text-sm text-base-content/80">
+    
+    <!-- Per Page Selector -->
+    <div class="flex items-center gap-2 font-medium whitespace-nowrap shrink-0">
+      <span class="text-base-content/70">Show</span>
       <select 
         [value]="pageSize()" 
         (change)="onPageChange(undefined, $any($event.target))" 
-        class="select select-sm select-bordered bg-base-100 focus:outline-none"
+        class="select select-xs select-bordered bg-base-100 text-base-content border-base-300 focus:border-fuchsia-400 focus:outline-none rounded-lg  cursor-pointer"
       >
         @for (size of pageSizeOptions(); track size) {
-          <option [value]="size" [selected]="size === pageSize()">{{ size }}</option>
+          <option [value]="size" [selected]="size === pageSize()" class="bg-base-100 text-base-content">{{ size }}</option>
         }
       </select>
-      <span>per page</span>
+      <span class="text-base-content/70">per page</span>
     </div>
 
-    <span class="hidden md:inline-block text-base-content/30">|</span>
+    <span class="text-base-content/30 hidden sm:inline">•</span>
 
-   <div class="flex items-center w-full gap-3 py-3">
-  <div class="text-sm">
-    Showing {{ (pageNumber() - 1) * pageSize() + 1 }} - {{ lastItemIndex() }} of {{ totalCount() }}
+    <!-- Showing X - Y of Z -->
+    <div class="text-xs font-semibold text-base-content/80 whitespace-nowrap">
+      Showing <span class="text-fuchsia-400 font-bold">{{ (pageNumber() - 1) * pageSize() + 1 }}</span>
+      - <span class="text-fuchsia-400 font-bold">{{ lastItemIndex() }}</span> 
+      of <span class="text-fuchsia-400 font-bold">{{ totalCount() }}</span>
+    </div>
+
   </div>
 
-  <div class="flex items-center gap-2">
-    <button
-      class="btn btn-circle btn-ghost"
-      [disabled]="pageNumber() === 1"
-      (click)="onPageChange(pageNumber() - 1)"
-    >
-      &larr;
-    </button>
-    <button
-      class="btn btn-circle btn-ghost"
-      [disabled]="lastItemIndex() >= totalCount()"
-      (click)="onPageChange(pageNumber() + 1)"
-    >
-      &rarr;
-    </button>
-  </div>
-</div>
-  </div>
+  <!-- Right Side: Navigation Controls -->
+  <div class="flex items-center gap-3">
+    <!-- Active Page Indicator -->
+    <span class="bg-fuchsia-500/10 border border-fuchsia-400/30 text-fuchsia-400 text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
+      Page {{ pageNumber() }}
+    </span>
 
+    <!-- Arrow Buttons -->
+    <div class="flex items-center gap-2">
+      <button
+        class="p-2 rounded-xl bg-base-100 border border-base-300 text-fuchsia-400 hover:bg-fuchsia-500/20 hover:border-fuchsia-400 transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shadow-xs"
+        [disabled]="pageNumber() === 1"
+        (click)="onPageChange(pageNumber() - 1)"
+        title="Previous Page"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
 
+      <button
+        class="p-2 rounded-xl bg-base-100 border border-base-300 text-fuchsia-400 hover:bg-fuchsia-500/20 hover:border-fuchsia-400 transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shadow-xs"
+        [disabled]="lastItemIndex() >= totalCount()"
+        (click)="onPageChange(pageNumber() + 1)"
+        title="Next Page"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+  </div>
 
 </div>
