@@ -3,6 +3,7 @@ using API.DTOs;
 using API.Entities;
 using API.Helpers;
 using API.Interfaces;
+using API.Extensions;
 
 namespace API.Data;
 
@@ -24,10 +25,22 @@ public class MessageRepository(AppDbContext context) : IMessageRepository
 return await context.Messages.FindAsync(messageId);
    }
 
-    public Task<PaginatedResult<MessageDTO>> GetMessagesForMember()
+    public async Task<PaginatedResult<MessageDTO>> GetMessagesForMember(MessageParams messageParams)
     {
-        throw new NotImplementedException();
-    }
+       var query = context.Messages
+        .OrderByDescending(x => x.MessageSent)
+        .AsQueryable();
+
+    query = messageParams.Container switch
+    {
+        "Outbox" => query.Where(x => x.SenderId == messageParams.MemberId),
+        _ => query.Where(x => x.RecipientId == messageParams.MemberId)
+    };
+
+    var messageQuery = query.Select(message => message.ToDto());
+
+    return await PaginationHelper.CreateAsync(messageQuery, messageParams.PageNumber, messageParams.PageSize);
+}
 
     public Task<IReadOnlyList<MessageDTO>> GetMessageThread(string currentMemberId, string recipientId)
     {
