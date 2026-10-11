@@ -1,16 +1,16 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { MembersService } from '../../services/members';
 import { Member, MemberFilters } from '../../interfaces/member.interface';
 import { AccountService } from '../../../../core/services/account-service';
 import { PaginatedResult } from '../../../../shared/types/pagination';
 import { Paginator } from '../../../../shared/components/paginator/paginator';
+import { MemberCard } from '../member-card/member-card';
 
 @Component({
   selector: 'app-members',
   standalone: true,
-  imports: [RouterLink, Paginator, ReactiveFormsModule],
+  imports: [Paginator, ReactiveFormsModule, MemberCard],
   templateUrl: './members.html',
   styleUrl: './members.css',
 })
@@ -148,4 +148,3 @@ export class Members implements OnInit {
     };
   }
 }
-

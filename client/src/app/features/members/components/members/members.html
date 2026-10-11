@@ -1,41 +1,35 @@
-<div class="min-h-screen bg-gray-950 text-white py-10 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-7xl mx-auto">
-
-    <!-- Header -->
-    <div class="flex items-center justify-between gap-4 mb-8">
+<div class="min-h-screen bg-gray-950 px-4 py-10 text-white sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-7xl">
+    <header class="mb-8 flex items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight text-white">
-          Your Matches
-        </h1>
-        <p class="text-gray-400 text-sm mt-1">
+        <h1 class="text-3xl font-bold tracking-tight">Your Matches</h1>
+        <p class="mt-1 text-sm text-gray-400">
           Discover and connect with members.
         </p>
       </div>
-
-      <div class="bg-gray-900 border border-gray-800 rounded-full px-4 py-1.5 text-xs text-gray-300 font-medium">
+      <div
+        class="rounded-full border border-gray-800 bg-gray-900 px-4 py-1.5 text-xs font-medium text-gray-300"
+      >
         Total Matches:
-        <span class="text-fuchsia-400 font-bold">
+        <span class="font-bold text-fuchsia-400">
           {{ allMembers().metadata.totalCount }}
         </span>
       </div>
-    </div>
+    </header>
 
     <form
       [formGroup]="filterForm"
       (ngSubmit)="applyFilters()"
       class="mb-8 grid grid-cols-1 gap-4 rounded-2xl border border-gray-800 bg-gray-900/60 p-4 sm:grid-cols-2 lg:grid-cols-6"
     >
-
-      <!-- Gender: Custom Tailwind Dropdown -->
       <div class="relative flex flex-col gap-1 text-sm text-gray-300">
         <label>Gender</label>
-
         <button
           type="button"
           (click)="toggleGenderDropdown()"
           [attr.aria-expanded]="genderDropdownOpen"
           aria-haspopup="listbox"
-          class="w-full flex cursor-pointer items-center justify-between rounded-xl border border-gray-700 bg-gray-950/80 px-3 py-2.5 text-left text-white shadow-inner shadow-black/20 transition hover:border-gray-600 focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30"
+          class="flex w-full cursor-pointer items-center justify-between rounded-xl border border-gray-700 bg-gray-950/80 px-3 py-2.5 text-left text-white shadow-inner shadow-black/20 transition hover:border-gray-600 focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30"
         >
           <span>
             @for (option of genderOptions; track option.value) {
@@ -44,7 +38,6 @@
               }
             }
           </span>
-
           <svg
             aria-hidden="true"
             class="h-4 w-4 shrink-0 text-gray-400 transition-transform"
@@ -53,10 +46,14 @@
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m19 9-7 7-7-7"
+            />
           </svg>
         </button>
-
         @if (genderDropdownOpen) {
           <div
             class="absolute left-0 right-0 top-full z-50 mt-2 rounded-xl border border-gray-700 bg-gray-900 p-2 shadow-xl shadow-black/40"
@@ -74,20 +71,13 @@
                 [class.text-fuchsia-400]="filterForm.controls.gender.value === option.value"
                 [class.text-gray-300]="filterForm.controls.gender.value !== option.value"
               >
-                <span>{{ option.label }}</span>
-
-                @if (filterForm.controls.gender.value === option.value) {
-                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.414l-7.2 7.2a1 1 0 01-1.414 0l-3.3-3.3a1 1 0 011.414-1.414l2.593 2.593 6.493-6.493a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                }
+                {{ option.label }}
               </button>
             }
           </div>
         }
       </div>
 
-      <!-- Min age: unchanged -->
       <label class="flex flex-col gap-1 text-sm text-gray-300">
         Min age
         <input
@@ -95,11 +85,10 @@
           formControlName="minAge"
           min="18"
           max="100"
-          class="rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-white focus:border-fuchsia-400 focus:outline-none"
+          class="rounded-xl border border-gray-700 bg-gray-950/80 px-3 py-2.5 text-white focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30"
         />
       </label>
 
-      <!-- Max age: unchanged -->
       <label class="flex flex-col gap-1 text-sm text-gray-300">
         Max age
         <input
@@ -107,20 +96,18 @@
           formControlName="maxAge"
           min="18"
           max="100"
-          class="rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-white focus:border-fuchsia-400 focus:outline-none"
+          class="rounded-xl border border-gray-700 bg-gray-950/80 px-3 py-2.5 text-white focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30"
         />
       </label>
 
-      <!-- Sort by: Custom Tailwind Dropdown -->
       <div class="relative flex flex-col gap-1 text-sm text-gray-300">
         <label>Sort by</label>
-
         <button
           type="button"
           (click)="toggleSortDropdown()"
           [attr.aria-expanded]="sortDropdownOpen"
           aria-haspopup="listbox"
-          class="w-full cursor-pointer flex items-center justify-between rounded-xl border border-gray-700 bg-gray-950/80 px-3 py-2.5 text-left text-white shadow-inner shadow-black/20 transition hover:border-gray-600 focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30"
+          class="flex w-full cursor-pointer items-center justify-between rounded-xl border border-gray-700 bg-gray-950/80 px-3 py-2.5 text-left text-white shadow-inner shadow-black/20 transition hover:border-gray-600 focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30"
         >
           <span>
             @for (option of sortOptions; track option.value) {
@@ -129,7 +116,6 @@
               }
             }
           </span>
-
           <svg
             aria-hidden="true"
             class="h-4 w-4 shrink-0 text-gray-400 transition-transform"
@@ -138,10 +124,14 @@
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m19 9-7 7-7-7"
+            />
           </svg>
         </button>
-
         @if (sortDropdownOpen) {
           <div
             class="absolute left-0 right-0 top-full z-50 mt-2 max-h-80 overflow-y-auto rounded-xl border border-gray-700 bg-gray-900 p-2 shadow-xl shadow-black/40"
@@ -154,25 +144,17 @@
                 role="option"
                 [attr.aria-selected]="filterForm.controls.orderBy.value === option.value"
                 (click)="selectSort(option.value)"
-                class="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition hover:bg-gray-800"
+                class="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-gray-300 transition hover:bg-gray-800"
                 [class.bg-gray-800]="filterForm.controls.orderBy.value === option.value"
                 [class.text-fuchsia-400]="filterForm.controls.orderBy.value === option.value"
-                [class.text-gray-300]="filterForm.controls.orderBy.value !== option.value"
               >
-                <span>{{ option.label }}</span>
-
-                @if (filterForm.controls.orderBy.value === option.value) {
-                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.414l-7.2 7.2a1 1 0 01-1.414 0l-3.3-3.3a1 1 0 011.414-1.414l2.593 2.593 6.493-6.493a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                }
+                {{ option.label }}
               </button>
             }
           </div>
         }
       </div>
 
-      <!-- Apply / Reset: unchanged -->
       <div class="flex items-end gap-2 sm:col-span-2 lg:col-span-2">
         <button
           type="submit"
@@ -180,7 +162,6 @@
         >
           Apply
         </button>
-
         <button
           type="button"
           (click)="resetFilters()"
@@ -191,7 +172,6 @@
       </div>
     </form>
 
-    <!-- Members Grid -->
     @if (members().length > 0) {
       @if (allMembers().metadata; as metadata) {
         <app-paginator
@@ -202,68 +182,19 @@
         />
       }
 
-      <div class="grid grid-cols-1 mt-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div
+        class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+      >
         @for (member of members(); track member.id) {
-          <div class="group bg-gray-900/60 hover:bg-gray-900 border border-gray-800/80 hover:border-fuchsia-500/50 rounded-2xl p-4 transition-all duration-300 shadow-lg flex flex-col justify-between">
-            <div>
-              <!-- Avatar Container -->
-              <div class="relative w-full aspect-[4/4] sm:aspect-[5/6] rounded-xl bg-gray-900 overflow-hidden mb-4">
-                @if (member.photoUrl) {
-                  <img
-                    [src]="member.photoUrl"
-                    [alt]="member.displayName"
-                    loading="lazy"
-                    decoding="async"
-                    width="800"
-                    height="1200"
-                    class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-300"
-                  />
-                } @else {
-                  <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-950 to-purple-950">
-                    <div class="w-16 h-16 rounded-full bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-xl font-bold text-indigo-300 uppercase">
-                      {{ member.displayName ? member.displayName.charAt(0) : 'U' }}
-                    </div>
-                  </div>
-                }
-
-                <!-- Status Indicator -->
-                <span class="absolute top-3 right-3 h-3 w-3 rounded-full bg-emerald-500 z-10"></span>
-              </div>
-
-              <!-- Profile Details -->
-              <div class="space-y-1 mb-4">
-                <h3 class="text-lg font-bold text-white group-hover:text-fuchsia-400 transition-colors">
-                  {{ member.displayName || 'No Name' }}
-                </h3>
-                <p class="text-xs text-gray-400 truncate">
-                  {{ member.age }} yrs · {{ member.gender }}
-                </p>
-                <p class="text-xs text-gray-500 truncate">
-                  {{ member.city }}@if (member.country) {, {{ member.country }}}
-                </p>
-              </div>
-            </div>
-
-            <!-- Profile Action Link -->
-            <a
-              [routerLink]="['/matches', member.id]"
-              class="w-full text-center py-2.5 px-4 bg-gray-800 hover:bg-gradient-to-r hover:from-fuchsia-500 hover:to-pink-500 text-gray-200 hover:text-white font-medium text-sm rounded-xl border border-gray-700/60 hover:border-transparent transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
-            >
-              <span>View Profile</span>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </a>
-          </div>
+          <app-member-card [member]="member" />
         }
       </div>
     } @else {
-      <!-- Empty State -->
-      <div class="text-center py-16 bg-gray-900/40 border border-gray-800 rounded-3xl p-8">
-        <h3 class="text-lg font-bold text-white mb-1">
-          No matches found
-        </h3>
-        <p class="text-sm text-gray-400 mb-4">
+      <div
+        class="rounded-3xl border border-gray-800 bg-gray-900/40 p-8 py-16 text-center"
+      >
+        <h3 class="mb-1 text-lg font-bold text-white">No matches found</h3>
+        <p class="mb-4 text-sm text-gray-400">
           Try adjusting your filters or check back later.
         </p>
         <button

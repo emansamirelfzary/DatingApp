@@ -1,0 +1,96 @@
+<article
+  class="group flex flex-col justify-between rounded-2xl border border-gray-800/80 bg-gray-900/60 p-4 shadow-lg transition-all duration-300 hover:border-fuchsia-500/50 hover:bg-gray-900"
+>
+  <div>
+    <div
+      class="relative mb-4 aspect-square w-full overflow-hidden rounded-xl bg-gray-900 sm:aspect-[5/6]"
+    >
+      @if (member().photoUrl) {
+        <img
+          [src]="member().photoUrl"
+          [alt]="member().displayName"
+          loading="lazy"
+          decoding="async"
+          width="800"
+          height="1200"
+          class="h-full w-full rounded-xl object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+      } @else {
+        <div
+          class="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-950 to-purple-950"
+        >
+          <div
+            class="flex h-16 w-16 items-center justify-center rounded-full border border-indigo-500/40 bg-indigo-600/30 text-xl font-bold uppercase text-indigo-300"
+          >
+            {{ member().displayName ? member().displayName.charAt(0) : 'U' }}
+          </div>
+        </div>
+      }
+
+      <span
+        aria-label="Online"
+        class="absolute right-3 top-3 z-10 h-3 w-3 rounded-full bg-emerald-500"
+      ></span>
+
+      <button
+        type="button"
+        (click)="toggleLike()"
+        [disabled]="isTogglingLike()"
+        [attr.aria-label]="isLiked() ? 'Unlike ' + member().displayName : 'Like ' + member().displayName"
+        [attr.aria-pressed]="isLiked()"
+        class="absolute right-2 top-8 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-gray-950/75 text-white shadow-lg backdrop-blur transition hover:scale-110 hover:border-pink-400 hover:text-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-400 disabled:cursor-wait disabled:opacity-60"
+        [class.text-pink-400]="isLiked()"
+      >
+        <svg
+          aria-hidden="true"
+          class="h-5 w-5"
+          [attr.fill]="isLiked() ? 'currentColor' : 'none'"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <div class="mb-4 space-y-1">
+      <h3
+        class="text-lg font-bold text-white transition-colors group-hover:text-fuchsia-400"
+      >
+        {{ member().displayName || 'No Name' }}
+      </h3>
+      <p class="truncate text-xs text-gray-400">
+        {{ member().age }} yrs · {{ member().gender }}
+      </p>
+      <p class="truncate text-xs text-gray-500">
+        {{ member().city }}@if (member().country) {, {{ member().country }}}
+      </p>
+    </div>
+  </div>
+
+  <a
+    [routerLink]="['/matches', member().id]"
+    class="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-700/60 bg-gray-800 px-4 py-2.5 text-center text-sm font-medium text-gray-200 shadow-sm transition-all duration-200 hover:border-transparent hover:bg-gradient-to-r hover:from-fuchsia-500 hover:to-pink-500 hover:text-white"
+  >
+    <span>View Profile</span>
+    <svg
+      aria-hidden="true"
+      class="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M14 5l7 7m0 0-7 7m7-7H3"
+      />
+    </svg>
+  </a>
+</article>

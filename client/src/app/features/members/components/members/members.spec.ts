@@ -5,6 +5,7 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { Members } from './members';
 import { MembersService } from '../../services/members';
+import { Likes } from '../../services/likes';
 import { AccountService } from '../../../../core/services/account-service';
 import { Member } from '../../interfaces/member.interface';
 
@@ -47,6 +48,13 @@ describe('Members', () => {
           provide: MembersService,
           useValue: {
             getMembers: getMembersSpy,
+          },
+        },
+        {
+          provide: Likes,
+          useValue: {
+            likeIds: signal<string[]>([]),
+            toggleLike: vi.fn(() => of(undefined)),
           },
         },
         { provide: AccountService, useValue: { currentUser: signal({ id: currentMember.id }) } },
