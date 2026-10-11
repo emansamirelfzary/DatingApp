@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<Member> Members { get; set; }
     public DbSet<Photo> Photos { get; set; }
     public DbSet<MemberLike> Likes { get; set; }
+    public DbSet<Message> Messages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -30,6 +31,21 @@ public class AppDbContext : DbContext
             entity.HasOne(like => like.TargetMember)
                 .WithMany(member => member.LikedByMembers)
                 .HasForeignKey(like => like.TargetMemberId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                
+        });
+
+        modelBuilder.Entity<Message>(entity =>
+        {
+            entity.HasOne(x => x.Recipient)
+                .WithMany(m => m.MessagsRecived)
+                .HasForeignKey(x => x.RecipientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(x => x.Sender)
+                .WithMany(m => m.MessagesSent)
+                .HasForeignKey(x => x.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }

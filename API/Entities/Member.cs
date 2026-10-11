@@ -23,6 +23,8 @@ public  List<Photo> Photos { get; set; } = [];
 public List<MemberLike> LikedByMembers { get; set; } = [];
 
 public List<MemberLike> LikedMembers { get; set; } = [];
+public List<Message> MessagesSent { get; set; } = [];
+public List<Message> MessagsRecived { get; set; } = [];
 
 // Navigation property to the AppUser entity
 [ForeignKey(nameof(Id))]
