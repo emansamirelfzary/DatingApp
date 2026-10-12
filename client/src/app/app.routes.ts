@@ -26,7 +26,7 @@ export const routes: Routes = [
   },
   {
     path: 'messages',
-    loadComponent: () => import('./features/messages/components/messages/messages').then(m => m.Messages),canActivate: [authGuardGuard]
+    loadComponent: () => import('./features/messages/components/my-messages/my-messages').then(m => m.MyMessages),canActivate: [authGuardGuard]
   },
 
   {

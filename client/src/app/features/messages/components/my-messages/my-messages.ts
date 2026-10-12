@@ -8,12 +8,12 @@ import { PaginationMetadata } from '../../../../shared/types/pagination';
 import { finalize } from 'rxjs';
 
 @Component({
-  selector: 'app-messages',
+  selector: 'app-my-messages',
   imports: [DatePipe, RouterLink, Paginator],
-  templateUrl: './messages.html',
-  styleUrl: './messages.css',
+  templateUrl: './my-messages.html',
+  styleUrl: './my-messages.css',
 })
-export class Messages implements OnInit {
+export class MyMessages implements OnInit {
   private readonly messagesService = inject(MessagesService);
 
   protected readonly container = signal<'Inbox' | 'Outbox'>('Inbox');
