@@ -32,16 +32,28 @@ public class MessagesController(IMessageRepository messageRepository, IMemberRep
         var message = new Message
         {
             SenderId = sender.Id,
-            Sender = sender,
             RecipientId = recipient.Id,
-            Recipient = recipient,
             Content = createMessageDto.Content
         };
 
         messageRepository.AddMessage(message);
 
         if (await messageRepository.SaveAllAsync()) 
-            return Ok(message.ToDto());
+        {
+            return Ok(new MessageDTO
+            {
+                Id = message.Id,
+                SenderId = sender.Id,
+                SenderDisplayName = sender.DisplayName,
+                SenderImageUrl = sender.ImageUrl,
+                RecipientId = recipient.Id,
+                RecipientDisplayName = recipient.DisplayName,
+                RecipientImageUrl = recipient.ImageUrl,
+                Content = message.Content,
+                DateRead = message.DateRead,
+                MessageSent = message.MessageSent
+            });
+        }
 
         return BadRequest("Failed to send message");
     }
