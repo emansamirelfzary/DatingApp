@@ -1,0 +1,45 @@
+<main class="min-h-screen bg-gray-950 px-4 py-8 text-white sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-5xl">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-fuchsia-400">Your account</p>
+        <h1 class="mt-1 text-3xl font-bold">My Profile</h1>
+      </div>
+      <a routerLink="/matches" class="rounded-xl border border-gray-700 bg-gray-900 px-4 py-2 text-sm text-gray-200 transition hover:border-fuchsia-500/50 hover:text-white">Browse matches</a>
+    </div>
+
+    @if (member(); as user) {
+      <section class="overflow-hidden rounded-3xl border border-gray-800 bg-gray-900/80 shadow-2xl">
+        <div class="grid md:grid-cols-[minmax(260px,0.8fr)_1.2fr]">
+          <div class="relative min-h-80 bg-gray-950">
+            <img [src]="user.photoUrl || 'assets/user.png'" [alt]="user.displayName" class="absolute inset-0 h-full w-full object-cover object-top" />
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-950/90 via-transparent to-transparent"></div>
+            <div class="absolute bottom-5 left-5 right-5">
+              <p class="text-sm text-fuchsia-300">{{ user.city }}@if (user.city && user.country) {, }{{ user.country }}</p>
+              <h2 class="mt-1 text-3xl font-bold">{{ user.displayName }}</h2>
+            </div>
+          </div>
+
+          <div class="space-y-7 p-6 sm:p-8 lg:p-10">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p class="text-sm text-gray-400">Manage how your profile appears to matches.</p>
+                @if (user.age) { <p class="mt-2 text-sm font-medium text-fuchsia-300">{{ user.age }} years old</p> }
+              </div>
+              <a [routerLink]="['/matches', user.id, 'edit']" class="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-sm font-semibold shadow-lg shadow-fuchsia-900/20 transition hover:from-violet-500 hover:to-fuchsia-500">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m16.862 4.487 2.651 2.651M8 16l8.862-8.862a1.875 1.875 0 0 1 2.652 2.652L10.652 18.65a4 4 0 0 1-1.694 1.01L5 20.5l.84-3.958A4 4 0 0 1 8 16Z" /></svg>
+                Edit profile
+              </a>
+            </div>
+
+            <app-member-profile-details [member]="user" [canUploadPhotos]="true" photoLinkLabel="Manage photos" (mainPhotoChanged)="updateMainPhoto($event)" />
+          </div>
+        </div>
+      </section>
+    } @else if (isLoading()) {
+      <div class="flex h-80 flex-col items-center justify-center rounded-3xl border border-gray-800 bg-gray-900 text-gray-400"><div class="mb-4 h-10 w-10 animate-spin rounded-full border-2 border-fuchsia-500 border-t-transparent"></div><p>Loading your profile...</p></div>
+    } @else if (loadError()) {
+      <div role="alert" class="rounded-2xl border border-red-900 bg-red-950/40 p-6 text-sm text-red-300">We couldn’t load your profile. Please refresh and try again.</div>
+    }
+  </div>
+</main>

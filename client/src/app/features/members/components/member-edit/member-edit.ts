@@ -1,20 +1,26 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, DestroyRef, HostListener, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 import { Member, UpdateMember } from '../../interfaces/member.interface';
+import { MembersService } from '../../services/members';
+import { AccountService } from '../../../../core/services/account-service';
 
 @Component({
   selector: 'app-member-edit',
   imports: [ReactiveFormsModule],
   templateUrl: './member-edit.html',
 })
-export class MemberEdit implements OnChanges {
-  @Input({ required: true }) member!: Member;
-  @Input() isSaving = false;
-  @Input() saveError: string | null = null;
-
-  @Output() save = new EventEmitter<UpdateMember>();
-  @Output() cancel = new EventEmitter<void>();
-
+export class MemberEdit implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  private membersService = inject(MembersService);
+  private accountService = inject(AccountService);
+  member = signal<Member | null>(null);
+  isSaving = false;
+  saveError: string | null = null;
   private formBuilder = inject(FormBuilder).nonNullable;
   protected form = this.formBuilder.group({
     displayName: ['', [Validators.required, Validators.maxLength(50)]],
@@ -26,21 +32,41 @@ export class MemberEdit implements OnChanges {
   });
   protected readonly today = new Date().toISOString().slice(0, 10);
 
-  hasUnsavedChanges(): boolean {
-    return this.form.dirty;
+  ngOnInit(): void {
+    (this.route.parent?.paramMap ?? this.route.paramMap).pipe(
+      switchMap(params => this.membersService.getMember(params.get('id') ?? '')),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: member => {
+        this.member.set(member);
+        if (member.id !== this.accountService.currentUser()?.id) {
+          void this.router.navigate(['/matches', member.id]);
+          return;
+        }
+        this.form.reset({
+          displayName: member.displayName,
+          dateOfBirth: member.dateOfBirth.slice(0, 10),
+          gender: member.gender,
+          city: member.city,
+          country: member.country,
+          bio: member.bio ?? '',
+        });
+      },
+      error: () => { this.saveError = 'Could not load your profile. Please try again.'; },
+    });
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['member'] && this.member) {
-      this.form.reset({
-        displayName: this.member.displayName,
-        dateOfBirth: this.member.dateOfBirth.slice(0, 10),
-        gender: this.member.gender,
-        city: this.member.city,
-        country: this.member.country,
-        bio: this.member.bio ?? '',
-      });
-    }
+  hasUnsavedChanges(): boolean { return this.form.dirty; }
+
+  canDeactivate(): boolean {
+    return !this.form.dirty || window.confirm('Discard your unsaved profile changes?');
+  }
+
+  cancelEditing(): void { void this.router.navigate(['/matches', this.member()?.id]); }
+
+  @HostListener('window:beforeunload', ['$event'])
+  protectUnsavedChanges(event: BeforeUnloadEvent): void {
+    if (this.form.dirty) { event.preventDefault(); event.returnValue = ''; }
   }
 
   submit(): void {
@@ -48,7 +74,26 @@ export class MemberEdit implements OnChanges {
       this.form.markAllAsTouched();
       return;
     }
-
-    this.save.emit(this.form.getRawValue() satisfies UpdateMember);
+    const member = this.member();
+    if (!member) return;
+    this.isSaving = true;
+    this.saveError = null;
+    this.membersService.updateMember(member.id, this.form.getRawValue() satisfies UpdateMember).subscribe({
+      next: updated => {
+        const current = this.accountService.currentUser();
+        if (current?.id === updated.id) {
+          const user = { ...current, displayName: updated.displayName };
+          this.accountService.currentUser.set(user);
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+        this.isSaving = false;
+        this.form.markAsPristine();
+        void this.router.navigate(['/matches', updated.id]);
+      },
+      error: err => {
+        this.saveError = typeof err.error === 'string' ? err.error : 'Could not save your profile. Please try again.';
+        this.isSaving = false;
+      },
+    });
   }
 }

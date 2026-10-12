@@ -19,8 +19,19 @@ export const routes: Routes = [
     canActivate: [authGuardGuard]
   },
   {
+    path: 'profile',
+    loadComponent: () => import('./features/members/components/current-member-profile/current-member-profile').then(m => m.CurrentMemberProfile),
+    canActivate: [authGuardGuard],
+  },
+  {
     path: 'matches/:id',
-    loadComponent: () => import('./features/members/components/member-profile/member-profile').then(m => m.MemberProfile),canActivate: [authGuardGuard], canDeactivate: [memberEditGuard]
+    loadComponent: () => import('./features/members/components/member/member').then(m => m.Member),
+    canActivate: [authGuardGuard],
+    children: [
+      {path: '', loadComponent: () => import('./features/members/components/member-profile/member-profile').then(m => m.MemberProfile)},
+      {path: 'messages', loadComponent: () => import('./features/members/components/member-messages/member-messages').then(m => m.MemberMessages)},
+      {path: 'edit', loadComponent: () => import('./features/members/components/member-edit/member-edit').then(m => m.MemberEdit), canDeactivate: [memberEditGuard]},
+    ],
   },
   {path: 'matches/:id/photos', loadComponent: () => import('./features/members/components/member-photos/member-photos').then(m => m.MemberPhotos),canActivate: [authGuardGuard]
   },

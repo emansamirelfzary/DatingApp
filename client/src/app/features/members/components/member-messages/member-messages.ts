@@ -1,9 +1,13 @@
-import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 import { MessagesService } from '../../../messages/messages.service';
 import { Message } from '../../../messages/message';
 import { AccountService } from '../../../../core/services/account-service';
+import { MembersService } from '../../services/members';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -16,10 +20,13 @@ export class MemberMessages implements OnInit {
   private readonly messagesService = inject(MessagesService);
   private readonly accountService = inject(AccountService);
   private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
+  private readonly membersService = inject(MembersService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  recipientId = input.required<string>();
-  recipientName = input<string>('');
-  recipientPhoto = input<string | null>(null);
+  recipientId = signal('');
+  recipientName = signal('');
+  recipientPhoto = signal<string | null>(null);
 
   currentUser = this.accountService.currentUser;
   messages = signal<Message[]>([]);
@@ -58,7 +65,21 @@ export class MemberMessages implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadThread();
+    (this.route.parent?.paramMap ?? this.route.paramMap).pipe(
+      switchMap(params => this.membersService.getMember(params.get('id') ?? '')),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: member => {
+        this.recipientId.set(member.id);
+        this.recipientName.set(member.displayName);
+        this.recipientPhoto.set(member.photoUrl);
+        this.loadThread();
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.errorMessage.set('Could not load this member. Please try again.');
+      },
+    });
   }
 
   loadThread(): void {

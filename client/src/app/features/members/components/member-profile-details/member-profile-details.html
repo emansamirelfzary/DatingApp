@@ -1,0 +1,19 @@
+<div class="space-y-5">
+  <div class="grid grid-cols-2 gap-3">
+    <div class="rounded-xl border border-gray-800/80 bg-gray-950/60 p-3"><span class="mb-1 block text-xs text-gray-400">Gender</span><span class="block text-sm font-medium capitalize text-gray-200">{{ member().gender || 'N/A' }}</span></div>
+    <div class="rounded-xl border border-gray-800/80 bg-gray-950/60 p-3"><span class="mb-1 block text-xs text-gray-400">Email</span><span class="block truncate text-sm font-medium text-gray-200">{{ member().email || 'N/A' }}</span></div>
+    <div class="rounded-xl border border-gray-800/80 bg-gray-950/60 p-3"><span class="mb-1 block text-xs text-gray-400">Date of Birth</span><span class="block text-sm font-medium text-gray-200">{{ member().dateOfBirth | date:'mediumDate' }}</span></div>
+    <div class="rounded-xl border border-gray-800/80 bg-gray-950/60 p-3"><span class="mb-1 block text-xs text-gray-400">Status</span><span class="flex items-center gap-1.5 text-sm font-medium text-emerald-400"><span class="h-2 w-2 animate-pulse rounded-full bg-emerald-500"></span>Active Now</span></div>
+  </div>
+
+  <section class="space-y-2">
+    <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-400">About</h2>
+    <p class="rounded-xl border border-gray-800/50 bg-gray-950/40 p-4 text-sm leading-relaxed text-gray-300">{{ member().bio || 'No introduction added yet.' }}</p>
+  </section>
+
+  <section class="space-y-3 pt-1">
+    <div class="flex items-center justify-between"><h2 class="text-xs font-semibold uppercase tracking-wider text-gray-400">Photos</h2><a [routerLink]="['/matches', member().id, 'photos']" class="text-xs font-medium text-fuchsia-400 hover:text-indigo-300">{{ photoLinkLabel() }}</a></div>
+    <app-member-photo-list [memberId]="member().id" [previewLimit]="6" [canUpload]="canUploadPhotos()" (mainPhotoChanged)="mainPhotoChanged.emit($event)" />
+  </section>
+  @if (member().created) { <p class="pt-1 text-xs text-gray-500">Member since {{ member().created | date:'MMMM yyyy' }}</p> }
+</div>
