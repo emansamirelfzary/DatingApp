@@ -1,0 +1,19 @@
+/* Custom scrollbar and styling for member-messages thread */
+#member-messages-thread::-webkit-scrollbar {
+  width: 6px;
+}
+
+#member-messages-thread::-webkit-scrollbar-track {
+  background: rgba(17, 24, 39, 0.4);
+  border-radius: 9999px;
+}
+
+#member-messages-thread::-webkit-scrollbar-thumb {
+  background: rgba(147, 51, 234, 0.3);
+  border-radius: 9999px;
+}
+
+#member-messages-thread::-webkit-scrollbar-thumb:hover {
+  background: rgba(147, 51, 234, 0.6);
+}
+

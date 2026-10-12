@@ -1,4 +1,5 @@
 import { Component, computed, DestroyRef, HostListener, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MembersService } from '../../services/members';
@@ -9,10 +10,11 @@ import { MemberEdit } from '../member-edit/member-edit';
 import { AccountService } from '../../../../core/services/account-service';
 import { finalize, of, switchMap } from 'rxjs';
 import { Likes } from '../../services/likes';
+import { MemberMessages } from '../member-messages/member-messages';
 
 @Component({
   selector: 'app-member-profile',
-  imports: [RouterLink, DatePipe, MemberPhotoList, MemberEdit],
+  imports: [RouterLink, DatePipe, ReactiveFormsModule, MemberPhotoList, MemberEdit, MemberMessages],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
 })
@@ -37,8 +39,10 @@ export class MemberProfile implements OnInit {
   isSaving = signal(false);
   saveError = signal<string | null>(null);
   showUnsavedChangesDialog = signal(false);
+  activeTab = signal<'profile' | 'messages'>('profile');
   private pendingUnsavedChangesConfirmation: Promise<boolean> | null = null;
   private resolveUnsavedChangesConfirmation: ((discard: boolean) => void) | null = null;
+
 
   ngOnInit(): void {
     this.route.paramMap.pipe(
@@ -71,6 +75,12 @@ export class MemberProfile implements OnInit {
         }
       } else {
         this.isEditing.set(false);
+      }
+
+      if (params.get('tab') === 'messages') {
+        this.activeTab.set('messages');
+      } else {
+        this.activeTab.set('profile');
       }
     });
   }
@@ -123,6 +133,26 @@ export class MemberProfile implements OnInit {
           console.error('Error toggling member like:', err);
         },
       });
+  }
+
+  messageMember(): void {
+    this.activeTab.set('messages');
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: 'messages' },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  showProfileTab(): void {
+    this.activeTab.set('profile');
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   async cancelEditing(): Promise<void> {

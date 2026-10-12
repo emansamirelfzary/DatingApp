@@ -1,11 +1,11 @@
 using API.DTOs;
 using API.Entities;
 using API.Extensions;
+using API.Helpers;
 using API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-
 
 namespace API.Controllers;
 
@@ -16,6 +16,9 @@ public class MessagesController(IMessageRepository messageRepository, IMemberRep
     public async Task<ActionResult<MessageDTO>> CreateMessage(CreateMessageDTO createMessageDto)
     {
         var senderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(senderId))
+            return Unauthorized();
 
         if (senderId == createMessageDto.RecipientId)
             return BadRequest("You cannot send messages to yourself");
@@ -29,15 +32,61 @@ public class MessagesController(IMessageRepository messageRepository, IMemberRep
         var message = new Message
         {
             SenderId = sender.Id,
+            Sender = sender,
             RecipientId = recipient.Id,
+            Recipient = recipient,
             Content = createMessageDto.Content
         };
 
         messageRepository.AddMessage(message);
 
         if (await messageRepository.SaveAllAsync()) 
-            return message.ToDto();
+            return Ok(message.ToDto());
 
         return BadRequest("Failed to send message");
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<PaginatedResult<MessageDTO>>> GetMessages([FromQuery] MessageParams messageParams)
+    {
+        var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(memberId)) return Unauthorized();
+
+        messageParams.MemberId = memberId;
+        return Ok(await messageRepository.GetMessagesForMember(messageParams));
+    }
+
+    [HttpGet("thread/{recipientId}")]
+    public async Task<ActionResult<IReadOnlyList<MessageDTO>>> GetMessageThread(string recipientId)
+    {
+        var currentMemberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(currentMemberId)) return Unauthorized();
+
+        return Ok(await messageRepository.GetMessageThread(currentMemberId, recipientId));
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteMessage(string id)
+    {
+        var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(memberId)) return Unauthorized();
+
+        var message = await messageRepository.GetMessage(id);
+        if (message == null) return NotFound();
+
+        if (message.SenderId != memberId && message.RecipientId != memberId)
+            return Forbid();
+
+        if (message.SenderId == memberId) message.SenderDeleted = true;
+        if (message.RecipientId == memberId) message.RecipientDeleted = true;
+
+        if (message.SenderDeleted && message.RecipientDeleted)
+        {
+            messageRepository.DeleteMessage(message);
+        }
+
+        if (await messageRepository.SaveAllAsync()) return Ok();
+
+        return BadRequest("Problem deleting the message");
     }
 }
