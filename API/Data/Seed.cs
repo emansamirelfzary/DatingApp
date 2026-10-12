@@ -3,34 +3,34 @@ using Microsoft.EntityFrameworkCore;
 using API.DTOs;
 using API.Entities;
 using API.Security;
+using Microsoft.AspNetCore.Identity;
 
 namespace API.Data;
 
 public class Seed
 {
-    public static async Task SeedUsers(AppDbContext context)
+    public static async Task SeedUsers(UserManager<AppUser> userManager)
     {
-        if (await context.Users.AnyAsync()) return;
+        if (await userManager.Users.AnyAsync()) return;
 
         var memberData = await File.ReadAllTextAsync("Data/UserSeedData.json");
         var members = JsonSerializer.Deserialize<List<SeedUserDTO>>(memberData);
 
         if (members == null)
         {
-            
-         return;}
+
+            return;
+        }
 
         foreach (var member in members)
         {
-           var (passwordHash, passwordSalt) = PasswordHasher.Hash("Pa$$w0rd");
-           var user = new AppUser
+            var user = new AppUser
             {
                 Id = member.Id,
                 DisplayName = member.DisplayName,
                 Email = member.Email,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
-                PhotoUrl = member.ImageUrl, 
+                UserName = member.Email,
+                PhotoUrl = member.ImageUrl,
                 City = member.City,
                 Bio = member.Description,
                 Age = DateTime.Today.Year - member.DateOfBirth.Year - (DateTime.Today.DayOfYear < member.DateOfBirth.DayOfYear ? 1 : 0),
@@ -49,19 +49,33 @@ public class Seed
                 }
             };
 
-        if (!string.IsNullOrWhiteSpace(member.ImageUrl))
-        {
-            user.Member.Photos.Add(new Photo
+            if (!string.IsNullOrWhiteSpace(member.ImageUrl))
             {
-                Url = member.ImageUrl,
-                MemberId = member.Id,
-                IsMain = true
-            });
+                user.Member.Photos.Add(new Photo
+                {
+                    Url = member.ImageUrl,
+                    MemberId = member.Id,
+                    IsMain = true
+                });
+            }
+            var result = await userManager.CreateAsync(user, "pa$$w0rd");
+            if (!result.Succeeded)
+            {
+                Console.WriteLine(result.Errors.First().Description);
+            }
+            await userManager.AddToRoleAsync(user, "Member");
         }
 
-            context.Users.Add(user);
-        }
+        var admin = new AppUser
+        {
+            UserName = "admin@test.com",
+            Email = "admin@test.com",
+            DisplayName = "Admin"
+        };
 
-        await context.SaveChangesAsync();
+        await userManager.CreateAsync(admin, "Pa$$word");
+        await userManager.AddToRolesAsync(admin, ["Admin", "Moderator"]);
     }
+
 }
+
