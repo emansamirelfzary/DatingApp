@@ -39,6 +39,13 @@
             routerLinkActive="!text-fuchsia-400 font-semibold"
             class="text-gray-300 hover:text-fuchsia-400 transition-colors"
           >Messages</a>
+          @if (isAdmin()) {
+            <a
+              routerLink="/admin"
+              routerLinkActive="!text-fuchsia-400 font-semibold"
+              class="text-gray-300 hover:text-fuchsia-400 transition-colors"
+            >Admin</a>
+          }
         </div>
 
         <!-- Desktop Action Buttons & Dropdown -->
@@ -170,6 +177,13 @@
         routerLinkActive="!text-fuchsia-400 font-semibold bg-gray-800"
         class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-fuchsia-400 hover:bg-gray-800 transition-colors"
       >Messages</a>
+      @if (isAdmin()) {
+        <a
+          routerLink="/admin"
+          routerLinkActive="!text-fuchsia-400 font-semibold bg-gray-800"
+          class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-fuchsia-400 hover:bg-gray-800 transition-colors"
+        >Admin</a>
+      }
 
       @if (currentUser(); as user) {
         <!-- Mobile Logged In User Options -->

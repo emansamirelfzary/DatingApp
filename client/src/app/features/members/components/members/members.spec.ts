@@ -78,7 +78,7 @@ describe('Members', () => {
   });
 
   it('sends selected filters when applying', () => {
-    component.filterForm.patchValue({
+    (component as unknown as { filterForm: { patchValue: (v: object) => void } }).filterForm.patchValue({
       gender: 'male',
       minAge: 21,
       maxAge: 40,
@@ -95,7 +95,7 @@ describe('Members', () => {
   });
 
   it('sends alphabetical sorting when selected', () => {
-    component.filterForm.patchValue({ orderBy: 'displayNameDesc' });
+    (component as unknown as { filterForm: { patchValue: (v: object) => void } }).filterForm.patchValue({ orderBy: 'displayNameDesc' });
     component.applyFilters();
 
     expect(getMembersSpy).toHaveBeenLastCalledWith(1, 5, {

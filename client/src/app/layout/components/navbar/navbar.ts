@@ -14,7 +14,8 @@ private accountService= inject(AccountService);
 private router=inject(Router);
 
 protected currentUser = this.accountService.currentUser;
-protected selectedTheme = signal<string>(localStorage.getItem('theme') || 'light');
+protected isAdmin = this.accountService.isAdmin;
+ protected selectedTheme = signal<string>(localStorage.getItem('theme') || 'light');
 protected themes = Themes;
 /*
 ngOnInit() {

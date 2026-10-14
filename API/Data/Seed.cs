@@ -11,71 +11,94 @@ public class Seed
 {
     public static async Task SeedUsers(UserManager<AppUser> userManager)
     {
-        if (await userManager.Users.AnyAsync()) return;
-
-        var memberData = await File.ReadAllTextAsync("Data/UserSeedData.json");
-        var members = JsonSerializer.Deserialize<List<SeedUserDTO>>(memberData);
-
-        if (members == null)
+        // Seed the demo members only when the database is empty, to avoid duplicates.
+        if (!await userManager.Users.AnyAsync())
         {
+            var memberData = await File.ReadAllTextAsync("Data/UserSeedData.json");
+            var members = JsonSerializer.Deserialize<List<SeedUserDTO>>(memberData);
 
-            return;
+            if (members != null)
+            {
+                foreach (var member in members)
+                {
+                    var user = new AppUser
+                    {
+                        Id = member.Id,
+                        DisplayName = member.DisplayName,
+                        Email = member.Email,
+                        UserName = member.Email,
+                        PhotoUrl = member.ImageUrl,
+                        City = member.City,
+                        Bio = member.Description,
+                        Age = DateTime.Today.Year - member.DateOfBirth.Year - (DateTime.Today.DayOfYear < member.DateOfBirth.DayOfYear ? 1 : 0),
+                        Member = new Member
+                        {
+                            Id = member.Id,
+                            DisplayName = member.DisplayName,
+                            DateOfBirth = member.DateOfBirth,
+                            ImageUrl = member.ImageUrl,
+                            Created = member.Created,
+                            LastActive = member.LastActive,
+                            Gender = member.Gender,
+                            Description = member.Description,
+                            City = member.City,
+                            Country = member.Country
+                        }
+                    };
+
+                    if (!string.IsNullOrWhiteSpace(member.ImageUrl))
+                    {
+                        user.Member.Photos.Add(new Photo
+                        {
+                            Url = member.ImageUrl,
+                            MemberId = member.Id,
+                            IsMain = true
+                        });
+                    }
+                    var result = await userManager.CreateAsync(user, "pa$$w0rd");
+                    if (!result.Succeeded)
+                    {
+                        Console.WriteLine(result.Errors.First().Description);
+                    }
+                    await userManager.AddToRoleAsync(user, "Member");
+                }
+            }
         }
 
-        foreach (var member in members)
-        {
-            var user = new AppUser
-            {
-                Id = member.Id,
-                DisplayName = member.DisplayName,
-                Email = member.Email,
-                UserName = member.Email,
-                PhotoUrl = member.ImageUrl,
-                City = member.City,
-                Bio = member.Description,
-                Age = DateTime.Today.Year - member.DateOfBirth.Year - (DateTime.Today.DayOfYear < member.DateOfBirth.DayOfYear ? 1 : 0),
-                Member = new Member
-                {
-                    Id = member.Id,
-                    DisplayName = member.DisplayName,
-                    DateOfBirth = member.DateOfBirth,
-                    ImageUrl = member.ImageUrl,
-                    Created = member.Created,
-                    LastActive = member.LastActive,
-                    Gender = member.Gender,
-                    Description = member.Description,
-                    City = member.City,
-                    Country = member.Country
-                }
-            };
+        // Always ensure an admin account exists (idempotent), independent of other users.
+        await SeedAdmin(userManager);
+    }
 
-            if (!string.IsNullOrWhiteSpace(member.ImageUrl))
+    private static async Task SeedAdmin(UserManager<AppUser> userManager)
+    {
+        const string adminEmail = "admin@test.com";
+        const string adminPassword = "Pa$$w0rd";
+
+        var admin = await userManager.FindByEmailAsync(adminEmail);
+        if (admin == null)
+        {
+            admin = new AppUser
             {
-                user.Member.Photos.Add(new Photo
-                {
-                    Url = member.ImageUrl,
-                    MemberId = member.Id,
-                    IsMain = true
-                });
-            }
-            var result = await userManager.CreateAsync(user, "pa$$w0rd");
+                UserName = adminEmail,
+                Email = adminEmail,
+                DisplayName = "Admin"
+            };
+            var result = await userManager.CreateAsync(admin, adminPassword);
             if (!result.Succeeded)
             {
                 Console.WriteLine(result.Errors.First().Description);
+                return;
             }
-            await userManager.AddToRoleAsync(user, "Member");
         }
 
-        var admin = new AppUser
+        // Ensure the admin has both required roles.
+        foreach (var role in new[] { "Admin", "Moderator" })
         {
-            UserName = "admin@test.com",
-            Email = "admin@test.com",
-            DisplayName = "Admin"
-        };
-
-        await userManager.CreateAsync(admin, "Pa$$word");
-        await userManager.AddToRolesAsync(admin, ["Admin", "Moderator"]);
+            if (!await userManager.IsInRoleAsync(admin, role))
+            {
+                await userManager.AddToRoleAsync(admin, role);
+            }
+        }
     }
-
 }
 

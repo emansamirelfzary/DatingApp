@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Home } from './features/home/home';
 import { authGuardGuard } from './core/guards/auth-guard-guard';
 import { memberEditGuard } from './features/members/guards/member-edit-guard';
+import { adminGuard } from './core/guards/admin-guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -38,6 +39,11 @@ export const routes: Routes = [
   {
     path: 'messages',
     loadComponent: () => import('./features/messages/components/my-messages/my-messages').then(m => m.MyMessages),canActivate: [authGuardGuard]
+  },
+  {
+    path: 'admin',
+    loadComponent: () => import('./features/admin/components/admin-panel/admin-panel').then(m => m.AdminPanel),
+    canActivate: [authGuardGuard, adminGuard]
   },
 
   {

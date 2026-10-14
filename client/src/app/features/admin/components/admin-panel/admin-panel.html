@@ -1,0 +1,87 @@
+<div class="container mx-auto px-4 sm:px-6 lg:px-10 py-8">
+  <div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div class="space-y-1">
+      <h1 class="text-3xl font-bold text-white">Admin Panel</h1>
+      <p class="text-sm text-gray-400">Manage user roles across the application.</p>
+    </div>
+
+    <!-- Alerts -->
+    @if (successMessage()) {
+      <div role="alert" class="alert alert-success text-sm py-2">
+        <span>{{ successMessage() }}</span>
+      </div>
+    }
+    @if (saveError()) {
+      <div role="alert" class="alert alert-error text-sm py-2">
+        <span>{{ saveError() }}</span>
+      </div>
+    }
+    @if (loadError()) {
+      <div role="alert" class="alert alert-error text-sm py-2">
+        <span>{{ loadError() }}</span>
+        <button class="btn btn-sm" (click)="loadUsers()">Retry</button>
+      </div>
+    }
+
+    <!-- Loading -->
+    @if (isLoading()) {
+      <div class="flex justify-center py-12">
+        <span class="loading loading-spinner loading-lg text-fuchsia-500"></span>
+      </div>
+    } @else {
+      <!-- Users table -->
+      <div class="overflow-x-auto rounded-xl border border-gray-800 bg-gray-900">
+        <table class="table w-full">
+          <thead class="bg-gray-800 text-gray-300">
+            <tr>
+              <th class="text-left">User</th>
+              <th class="text-left">Roles</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users(); track user.id) {
+              <tr class="border-t border-gray-800">
+                <td class="text-gray-200">{{ user.email }}</td>
+                <td>
+                  <div class="flex flex-wrap gap-3">
+                    @for (role of availableRoles; track role) {
+                      <label class="flex items-center gap-1.5 text-sm text-gray-300 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          class="checkbox checkbox-sm checkbox-secondary"
+                          [checked]="hasRole(user.id, role)"
+                          (change)="toggleRole(user.id, role, $any($event.target).checked)"
+                        />
+                        <span>{{ role }}</span>
+                      </label>
+                    }
+                  </div>
+                </td>
+                <td class="text-right">
+                  <button
+                    class="btn btn-sm bg-gradient-to-r from-fuchsia-600 to-pink-600 border-none text-white disabled:opacity-50"
+                    [disabled]="!hasChanges(user.id) || savingUserId() !== null"
+                    (click)="saveRoles(user.id)"
+                  >
+                    @if (savingUserId() === user.id) {
+                      <span class="loading loading-spinner loading-xs"></span>
+                    }
+                    Save
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="text-center text-gray-400 py-8">No users found.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+  </div>
+</div>
