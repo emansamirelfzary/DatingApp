@@ -32,6 +32,8 @@ export class MemberMessages implements OnInit {
   messages = signal<Message[]>([]);
   isLoading = signal(true);
   isSending = signal(false);
+  emojiPickerOpen = signal(false);
+  readonly emojis = ['😀', '😍', '🥰', '😊', '😂', '😉', '😘', '❤️', '🔥', '👍', '🎉', '😢'];
   deletingId = signal<string | null>(null);
   errorMessage = signal<string | null>(null);
   activeFilter = signal<'all' | 'sent' | 'received'>('all');
@@ -155,11 +157,22 @@ export class MemberMessages implements OnInit {
   }
 
   onEnterKey(event: Event): void {
-    const keyboardEvent = event as KeyboardEvent;
-    if (keyboardEvent.ctrlKey || keyboardEvent.metaKey) {
-      keyboardEvent.preventDefault();
-      this.sendMessage();
-    }
+    event.preventDefault();
+    this.sendMessage();
+  }
+
+  insertEmoji(emoji: string, textarea: HTMLTextAreaElement): void {
+    const control = this.messageForm.controls.content;
+    const content = control.value;
+    const cursor = textarea.selectionStart ?? content.length;
+    const updated = content.slice(0, cursor) + emoji + content.slice(cursor);
+
+    control.setValue(updated);
+    control.markAsDirty();
+    this.emojiPickerOpen.set(false);
+    textarea.focus();
+    const nextCursor = cursor + emoji.length;
+    textarea.setSelectionRange(nextCursor, nextCursor);
   }
 
   private scrollToBottom(): void {
