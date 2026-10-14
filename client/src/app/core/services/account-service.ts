@@ -27,6 +27,7 @@ export class AccountService {
     tap((user: User) => {
       localStorage.setItem('user', JSON.stringify(user));
       this.currentUser.set(user);
+      this.likesService.getLikeIds();
     })
   );
 }
@@ -42,6 +43,7 @@ logout() {
       tap((user) => {
         localStorage.setItem('user', JSON.stringify(user));
         this.currentUser.set(user);
+        this.likesService.getLikeIds();
       }),
     );
   }

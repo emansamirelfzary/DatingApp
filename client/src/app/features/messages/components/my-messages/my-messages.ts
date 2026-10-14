@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MessagesService } from '../../messages.service';
@@ -24,6 +24,27 @@ export class MyMessages implements OnInit {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly messages = signal<Message[]>([]);
   protected readonly deletingId = signal<string | null>(null);
+  protected readonly conversations = computed(() => {
+    const conversations = new Map<string, { peerId: string; latest: Message; messageCount: number; unreadCount: number }>();
+
+    for (const message of this.messages()) {
+      const peerId = this.container() === 'Inbox' ? message.senderId : message.recipientId;
+      const conversation = conversations.get(peerId);
+      if (conversation) {
+        conversation.messageCount++;
+        if (this.container() === 'Inbox' && !message.dateRead) conversation.unreadCount++;
+      } else {
+        conversations.set(peerId, {
+          peerId,
+          latest: message,
+          messageCount: 1,
+          unreadCount: this.container() === 'Inbox' && !message.dateRead ? 1 : 0,
+        });
+      }
+    }
+
+    return [...conversations.values()];
+  });
 
   ngOnInit(): void {
     this.loadMessages();

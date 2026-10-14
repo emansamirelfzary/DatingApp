@@ -68,6 +68,24 @@ public class MessagesController(IMessageRepository messageRepository, IMemberRep
         return Ok(await messageRepository.GetMessagesForMember(messageParams));
     }
 
+    [HttpGet("unread-count")]
+    public async Task<ActionResult<int>> GetUnreadMessageCount()
+    {
+        var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(memberId)) return Unauthorized();
+
+        return Ok(await messageRepository.GetUnreadMessageCount(memberId));
+    }
+
+    [HttpGet("unread")]
+    public async Task<ActionResult<IReadOnlyList<MessageDTO>>> GetUnreadMessages()
+    {
+        var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(memberId)) return Unauthorized();
+
+        return Ok(await messageRepository.GetUnreadMessages(memberId));
+    }
+
     [HttpGet("thread/{recipientId}")]
     public async Task<ActionResult<IReadOnlyList<MessageDTO>>> GetMessageThread(string recipientId)
     {

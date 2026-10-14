@@ -57,6 +57,34 @@ public class MessageRepository(AppDbContext context) : IMessageRepository
             messageParams.PageSize);
     }
 
+    public Task<int> GetUnreadMessageCount(string memberId)
+    {
+        return context.Messages.CountAsync(x => x.RecipientId == memberId
+            && !x.RecipientDeleted && x.DateRead == null);
+    }
+
+    public async Task<IReadOnlyList<MessageDTO>> GetUnreadMessages(string memberId)
+    {
+        return await context.Messages
+            .Where(x => x.RecipientId == memberId && !x.RecipientDeleted && x.DateRead == null)
+            .OrderByDescending(x => x.MessageSent)
+            .Take(10)
+            .Select(message => new MessageDTO
+            {
+                Id = message.Id,
+                SenderId = message.SenderId,
+                SenderDisplayName = message.Sender.DisplayName,
+                SenderImageUrl = message.Sender.ImageUrl,
+                RecipientId = message.RecipientId,
+                RecipientDisplayName = message.Recipient.DisplayName,
+                RecipientImageUrl = message.Recipient.ImageUrl,
+                Content = message.Content,
+                DateRead = message.DateRead,
+                MessageSent = message.MessageSent
+            })
+            .ToListAsync();
+    }
+
     public async Task<IReadOnlyList<MessageDTO>> GetMessageThread(string currentMemberId, string recipientId)
     {
         var query = context.Messages

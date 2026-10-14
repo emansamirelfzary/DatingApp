@@ -34,11 +34,37 @@
             routerLinkActive="!text-fuchsia-400 font-semibold"
             class="text-gray-300 hover:text-fuchsia-400 transition-colors"
           >Likes</a>
-          <a
-            routerLink="/messages"
-            routerLinkActive="!text-fuchsia-400 font-semibold"
-            class="text-gray-300 hover:text-fuchsia-400 transition-colors"
-          >Messages</a>
+          <div class="flex items-center gap-1.5">
+            <a
+              routerLink="/messages"
+              routerLinkActive="!text-fuchsia-400 font-semibold"
+              class="text-gray-300 hover:text-fuchsia-400 transition-colors"
+            >Messages</a>
+            @if (currentUser()) {
+              <details #desktopMessageNotifications class="relative">
+                <summary class="flex cursor-pointer list-none items-center rounded-full bg-gray-800 px-2 py-1 text-xs text-fuchsia-300 hover:bg-gray-700 [&::-webkit-details-marker]:hidden" aria-label="Open new message notifications" title="New message notifications">
+                  <svg class="mr-1 h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg>
+                  {{ unreadMessageCount() > 99 ? '99+' : unreadMessageCount() }}
+                </summary>
+                <div class="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-gray-700 bg-gray-900 shadow-2xl">
+                  <div class="border-b border-gray-800 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-400">New messages</div>
+                  @if (unreadMessages().length === 0) {
+                    <p class="px-4 py-5 text-sm text-gray-400">You’re all caught up.</p>
+                  } @else {
+                    <div class="max-h-80 overflow-y-auto">
+                      @for (message of unreadMessages(); track message.id) {
+                        <a [routerLink]="['/matches', message.senderId, 'messages']" (click)="openMessageFromNotification(message.senderId, desktopMessageNotifications)" class="block border-b border-gray-800/80 px-4 py-3 transition hover:bg-gray-800/80">
+                          <span class="block truncate text-sm font-semibold text-white">{{ message.senderDisplayName }}</span>
+                          <span class="mt-1 block truncate text-xs text-gray-400">{{ message.content }}</span>
+                        </a>
+                      }
+                    </div>
+                  }
+                  <a routerLink="/messages" (click)="desktopMessageNotifications.open = false" class="block border-t border-gray-800 px-4 py-3 text-center text-xs font-semibold text-fuchsia-300 hover:bg-gray-800">Open inbox</a>
+                </div>
+              </details>
+            }
+          </div>
           @if (isAdmin()) {
             <a
               routerLink="/admin"
@@ -175,8 +201,27 @@
       <a
         routerLink="/messages"
         routerLinkActive="!text-fuchsia-400 font-semibold bg-gray-800"
-        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-fuchsia-400 hover:bg-gray-800 transition-colors"
+        class="flex items-center justify-between px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-fuchsia-400 hover:bg-gray-800 transition-colors"
       >Messages</a>
+      @if (currentUser()) {
+        <details #mobileMessageNotifications class="px-3">
+          <summary class="flex cursor-pointer list-none items-center gap-2 py-1 text-xs font-semibold text-fuchsia-300 [&::-webkit-details-marker]:hidden">
+            <span>New messages</span><span class="rounded-full bg-fuchsia-600 px-2 py-1 text-white">{{ unreadMessageCount() > 99 ? '99+' : unreadMessageCount() }}</span>
+          </summary>
+          @if (unreadMessages().length === 0) {
+            <p class="px-2 py-3 text-xs text-gray-400">You’re all caught up.</p>
+          } @else {
+            <div class="max-h-64 overflow-y-auto rounded-lg border border-gray-800 bg-gray-950/70">
+              @for (message of unreadMessages(); track message.id) {
+                <a [routerLink]="['/matches', message.senderId, 'messages']" (click)="openMessageFromNotification(message.senderId, mobileMessageNotifications)" class="block border-b border-gray-800 px-3 py-3 hover:bg-gray-800/80">
+                  <span class="block truncate text-sm font-semibold text-white">{{ message.senderDisplayName }}</span>
+                  <span class="mt-1 block truncate text-xs text-gray-400">{{ message.content }}</span>
+                </a>
+              }
+            </div>
+          }
+        </details>
+      }
       @if (isAdmin()) {
         <a
           routerLink="/admin"

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, forkJoin, map } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { CreateMessage, Message } from './message';
 import { PaginatedResult } from '../../shared/types/pagination';
@@ -21,6 +21,25 @@ export class MessagesService {
 
   getInbox(pageNumber = 1, pageSize = 10): Observable<PaginatedResult<Message>> {
     return this.getMessages('Inbox', pageNumber, pageSize);
+  }
+
+  getUnreadCount(): Observable<number> {
+    return this.http.get<number>(this.baseUrl + 'messages/unread-count');
+  }
+
+  getUnreadMessages(): Observable<Message[]> {
+    return this.http.get<Message[]>(this.baseUrl + 'messages/unread');
+  }
+
+  getUnreadNotifications(): Observable<{ count: number; messages: Message[] }> {
+    return forkJoin({ count: this.getUnreadCount(), messages: this.getUnreadMessages() }).pipe(
+      catchError(() => this.getMessages('Inbox', 1, 50).pipe(
+        map((result) => {
+          const unread = result.items.filter((message) => !message.dateRead);
+          return { count: unread.length, messages: unread.slice(0, 10) };
+        }),
+      )),
+    );
   }
 
   getMessageThread(recipientId: string): Observable<Message[]> {
