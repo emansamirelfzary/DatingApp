@@ -11,7 +11,10 @@ using System.Security.Claims;
 namespace API.Controllers;
 
 [Authorize]
-public class MembersController(IMemberRepository memberRepository, IPhotoService photoService) : BaseApiController
+public class MembersController(
+    IMemberRepository memberRepository,
+    IPhotoService photoService,
+    ILogger<MembersController> logger) : BaseApiController
 {
     [HttpGet]
     public async Task<ActionResult<PaginatedResult<MemberDTO>>> GetMembers([FromQuery] MemberParams memberParams)
@@ -135,6 +138,17 @@ public class MembersController(IMemberRepository memberRepository, IPhotoService
             return BadRequest("Please select a photo to upload.");
         }
 
+        if (file.Length > 5 * 1024 * 1024)
+        {
+            return BadRequest("Photo files must be 5 MB or smaller.");
+        }
+
+        if (string.IsNullOrWhiteSpace(file.ContentType)
+            || !file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest("Only image files can be uploaded.");
+        }
+
         if (!photoService.IsConfigured)
         {
             return Problem(
@@ -143,10 +157,33 @@ public class MembersController(IMemberRepository memberRepository, IPhotoService
                 detail: "Configure Cloudinary credentials in API/appsettings.Local.json before uploading photos.");
         }
 
-        var result = await photoService.UploadPhotoAsync(file);
+        CloudinaryDotNet.Actions.ImageUploadResult result;
+        try
+        {
+            result = await photoService.UploadPhotoAsync(file);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Photo storage failed for member {MemberId}.", memberId);
+            return Problem(
+                statusCode: StatusCodes.Status502BadGateway,
+                title: "Photo upload failed",
+                detail: "The photo storage service could not process this upload. Please try again.");
+        }
+
         if (result.Error != null)
         {
+            logger.LogWarning("Photo storage rejected an upload for member {MemberId}: {Error}", memberId, result.Error.Message);
             return BadRequest(result.Error.Message);
+        }
+
+        if (result.SecureUrl == null || string.IsNullOrWhiteSpace(result.PublicId))
+        {
+            logger.LogError("Photo storage returned an incomplete result for member {MemberId}.", memberId);
+            return Problem(
+                statusCode: StatusCodes.Status502BadGateway,
+                title: "Photo upload failed",
+                detail: "The photo storage service returned an invalid response. Please try again.");
         }
 
         var photo = new Photo
