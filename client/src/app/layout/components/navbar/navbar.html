@@ -34,17 +34,17 @@
             routerLinkActive="!text-fuchsia-400 font-semibold"
             class="text-gray-300 hover:text-fuchsia-400 transition-colors"
           >Likes</a>
-          <div class="relative">
+          <div class="relative inline-flex items-center">
             <a
               routerLink="/messages"
               routerLinkActive="!text-fuchsia-400 font-semibold"
-              class="text-gray-300 hover:text-fuchsia-400 transition-colors"
+              class="pr-9 text-gray-300 hover:text-fuchsia-400 transition-colors"
             >Messages</a>
             @if (currentUser() && unreadMessageCount() > 0) {
-              <details #desktopMessageNotifications class="absolute -top-1 left-full z-10 ml-1">
-                <summary class="relative flex h-7 w-7 cursor-pointer list-none items-center justify-center rounded-full bg-transparent text-fuchsia-300 [&::-webkit-details-marker]:hidden" aria-label="Open new message notifications" title="New message notifications">
+              <details #desktopMessageNotifications class="absolute right-0 top-1/2 z-10 -translate-y-1/2">
+                <summary class="relative flex h-7 w-7 cursor-pointer list-none items-center justify-center rounded-full bg-transparent text-gray-300 transition hover:text-fuchsia-300 [&::-webkit-details-marker]:hidden" aria-label="Open new message notifications" title="New message notifications">
                   <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg>
-                  <span class="absolute -right-2 -top-1 min-w-4 text-center text-[9px] font-bold leading-3 text-fuchsia-300">{{ unreadMessageCount() > 99 ? '99+' : unreadMessageCount() }}</span>
+                  <span class="absolute -right-1 -top-1 min-w-4 rounded-full bg-fuchsia-600 px-1 text-center text-[9px] font-bold leading-4 text-white shadow-sm">{{ unreadMessageCount() > 99 ? '99+' : unreadMessageCount() }}</span>
                 </summary>
                 <div class="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-gray-700 bg-gray-900 shadow-2xl">
                   <div class="border-b border-gray-800 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-400">New messages</div>
@@ -198,13 +198,13 @@
         <a
           routerLink="/messages"
           routerLinkActive="!text-fuchsia-400 font-semibold bg-gray-800"
-          class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-fuchsia-400 hover:bg-gray-800 transition-colors"
+          class="block px-3 py-2 pr-12 rounded-md text-base font-medium text-gray-300 hover:text-fuchsia-400 hover:bg-gray-800 transition-colors"
         >Messages</a>
         @if (currentUser() && unreadMessageCount() > 0) {
           <details #mobileMessageNotifications class="absolute right-2 top-1 z-10">
-            <summary class="relative flex h-7 w-7 cursor-pointer list-none items-center justify-center rounded-full bg-transparent text-fuchsia-300 [&::-webkit-details-marker]:hidden" aria-label="Open new message notifications" title="New message notifications">
+            <summary class="relative flex h-7 w-7 cursor-pointer list-none items-center justify-center rounded-full bg-transparent text-gray-300 transition hover:text-fuchsia-300 [&::-webkit-details-marker]:hidden" aria-label="Open new message notifications" title="New message notifications">
               <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg>
-              <span class="absolute -right-2 -top-1 min-w-4 text-center text-[9px] font-bold leading-3 text-fuchsia-300">{{ unreadMessageCount() > 99 ? '99+' : unreadMessageCount() }}</span>
+              <span class="absolute -right-1 -top-1 min-w-4 rounded-full bg-fuchsia-600 px-1 text-center text-[9px] font-bold leading-4 text-white shadow-sm">{{ unreadMessageCount() > 99 ? '99+' : unreadMessageCount() }}</span>
             </summary>
             <div class="absolute right-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-xl border border-gray-700 bg-gray-900 shadow-2xl">
               <div class="border-b border-gray-800 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-400">New messages</div>
