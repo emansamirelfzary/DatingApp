@@ -102,6 +102,7 @@ app.MapGet("/", () => Results.Json(new
 }));
 
 app.MapControllers();
+app.MapFallbackToController("Index", "Fallback");
 var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 try

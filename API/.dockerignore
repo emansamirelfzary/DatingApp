@@ -1,0 +1,6 @@
+**/bin/
+**/obj/
+appsettings.Local.json
+dating*.db
+dating*.db-shm
+dating*.db-wal
