@@ -1,4 +1,3 @@
-
 using System.Text;
 using API.Data;
 using API.Interfaces;
@@ -15,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
-
 var tokenKey = builder.Configuration["TokenKey"];
 if (string.IsNullOrWhiteSpace(tokenKey) || tokenKey.Length < 64)
 {
@@ -24,8 +22,13 @@ if (string.IsNullOrWhiteSpace(tokenKey) || tokenKey.Length < 64)
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+// إعداد SQL Server الوحيد والمخصص لقاعدة بيانات Docker مع تجاهل تحذيرات التغييرات المعلقة
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning));
+});
 
 builder.Services.AddOpenApi();
 
@@ -36,6 +39,7 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<ILikesRepository, LikesRepository>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("cloudinarySettings"));
+
 builder.Services.AddIdentityCore<AppUser>(opt =>
 {
     opt.Password.RequireNonAlphanumeric = false;
@@ -43,6 +47,7 @@ builder.Services.AddIdentityCore<AppUser>(opt =>
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<AppDbContext>();
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -56,22 +61,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-    builder.Services.AddAuthorizationBuilder()
+builder.Services.AddAuthorizationBuilder()
     .AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"))
     .AddPolicy("ModeratePhotoRole", policy => policy.RequireRole("Admin", "Moderator"));
 
-
-    builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
-    options.ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning));
-});
-
 builder.Services.AddAuthorization();
 
-
 var app = builder.Build();
+
 app.UseMiddleware<ExeptionMiddleware>();
+
 app.UseCors(policy => policy
     .AllowAnyHeader()
     .AllowAnyMethod()
@@ -82,10 +81,12 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseDefaultFiles();
@@ -103,7 +104,8 @@ app.MapGet("/", () => Results.Json(new
 
 app.MapControllers();
 app.MapFallbackToController("Index", "Fallback");
-var scope = app.Services.CreateScope();
+
+using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 try
 {
@@ -118,6 +120,5 @@ catch (Exception ex)
     logger.LogError(ex, "An error occurred during migration or seeding.");
     throw;
 }
-
 
 app.Run();
