@@ -23,12 +23,29 @@ if (string.IsNullOrWhiteSpace(tokenKey) || tokenKey.Length < 64)
 // Add services to the container.
 builder.Services.AddControllers();
 
-// إعداد SQL Server الوحيد والمخصص لقاعدة بيانات Docker مع تجاهل تحذيرات التغييرات المعلقة
-builder.Services.AddDbContext<AppDbContext>(options =>
+var databaseProvider = builder.Configuration["DatabaseProvider"] ?? "Sqlite";
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Configure ConnectionStrings:DefaultConnection.");
+
+if (databaseProvider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    options.ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning));
-});
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(connectionString)
+            .ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning)));
+    builder.Services.AddDbContext<SqlServerAppDbContext>(options =>
+        options.UseSqlServer(connectionString)
+            .ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning)));
+}
+else if (databaseProvider.Equals("Sqlite", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite(connectionString)
+            .ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning)));
+}
+else
+{
+    throw new InvalidOperationException($"Unsupported DatabaseProvider '{databaseProvider}'. Use SqlServer or Sqlite.");
+}
 
 builder.Services.AddOpenApi();
 
@@ -38,6 +55,7 @@ builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<ILikesRepository, LikesRepository>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("cloudinarySettings"));
 
 builder.Services.AddIdentityCore<AppUser>(opt =>
@@ -109,10 +127,28 @@ using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 try
 {
-    var context = services.GetRequiredService<AppDbContext>();
-    var userManager = services.GetRequiredService<UserManager<AppUser>>();
-    await context.Database.MigrateAsync();
-    await Seed.SeedUsers(userManager);
+    var applyMigrations = !databaseProvider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase)
+        || builder.Configuration.GetValue<bool>("ApplySqlServerMigrationsOnStartup");
+
+    if (!applyMigrations)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning(
+            "SQL Server migrations and seeding were skipped. Review the generated migration, then set ApplySqlServerMigrationsOnStartup=true to apply it.");
+    }
+    else if (databaseProvider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+    {
+        await services.GetRequiredService<SqlServerAppDbContext>().Database.MigrateAsync();
+        var userManager = services.GetRequiredService<UserManager<AppUser>>();
+        await Seed.SeedUsers(userManager);
+    }
+    else
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        await context.Database.MigrateAsync();
+        var userManager = services.GetRequiredService<UserManager<AppUser>>();
+        await Seed.SeedUsers(userManager);
+    }
 }
 catch (Exception ex)
 {

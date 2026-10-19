@@ -55,12 +55,18 @@ public class Seed
                             IsMain = true
                         });
                     }
-                    var result = await userManager.CreateAsync(user, "pa$$w0rd");
+                    var result = await userManager.CreateAsync(user, "Pa$$w0rd");
                     if (!result.Succeeded)
                     {
-                        Console.WriteLine(result.Errors.First().Description);
+                        Console.WriteLine(string.Join("; ", result.Errors.Select(error => error.Description)));
+                        continue;
                     }
-                    await userManager.AddToRoleAsync(user, "Member");
+
+                    var roleResult = await userManager.AddToRoleAsync(user, "Member");
+                    if (!roleResult.Succeeded)
+                    {
+                        Console.WriteLine(string.Join("; ", roleResult.Errors.Select(error => error.Description)));
+                    }
                 }
             }
         }

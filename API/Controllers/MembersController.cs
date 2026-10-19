@@ -149,15 +149,7 @@ public class MembersController(
             return BadRequest("Only image files can be uploaded.");
         }
 
-        if (!photoService.IsConfigured)
-        {
-            return Problem(
-                statusCode: StatusCodes.Status503ServiceUnavailable,
-                title: "Photo uploads are unavailable",
-                detail: "Configure Cloudinary credentials in API/appsettings.Local.json before uploading photos.");
-        }
-
-        CloudinaryDotNet.Actions.ImageUploadResult result;
+        PhotoUploadResult result;
         try
         {
             result = await photoService.UploadPhotoAsync(file);
@@ -171,10 +163,10 @@ public class MembersController(
                 detail: "The photo storage service could not process this upload. Please try again.");
         }
 
-        if (result.Error != null)
+        if (result.ErrorMessage != null)
         {
-            logger.LogWarning("Photo storage rejected an upload for member {MemberId}: {Error}", memberId, result.Error.Message);
-            return BadRequest(result.Error.Message);
+            logger.LogWarning("Photo storage rejected an upload for member {MemberId}: {Error}", memberId, result.ErrorMessage);
+            return BadRequest(result.ErrorMessage);
         }
 
         if (result.SecureUrl == null || string.IsNullOrWhiteSpace(result.PublicId))
@@ -250,9 +242,9 @@ public class MembersController(
         if (photo.PublicId != null)
         {
             var result = await photoService.DeletePhotoAsync(photo.PublicId);
-            if (result.Error != null)
+            if (!result.Succeeded)
             {
-                return BadRequest(result.Error.Message);
+                return BadRequest(result.ErrorMessage);
             }
         }
 
